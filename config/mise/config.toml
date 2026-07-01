@@ -1,0 +1,4 @@
+[tools]
+dotnet = "8.0.420"
+node = "latest"
+python = "3.14.3"

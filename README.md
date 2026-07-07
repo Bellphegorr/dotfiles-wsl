@@ -40,6 +40,22 @@ Configurações pessoais para sincronizar entre máquinas.
 - Zed
 - vim
 
+## TMUX
+
+#### `mksession.sh`
+
+Cria (ou conecta a) uma sessão tmux com as janelas `agent`, `terminal` e `git`.
+
+```bash
+# Usar defaults (sessão "projetos", diretório "~/projetos")
+bash config/tmux/scripts/mksession.sh
+
+# Sessão com nome e diretório personalizados
+bash config/tmux/scripts/mksession.sh meuapp ~/code/meuapp
+```
+
+Se a sessão já existir, apenas conecta a ela (ou troca o cliente, se já estiver dentro do tmux).
+
 ## Como usar
 
 ```bash

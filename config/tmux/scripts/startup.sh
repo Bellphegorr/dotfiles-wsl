@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-# Se já existe servidor tmux, apenas attacha.
+LOCKDIR="/tmp/tmux-restore.lock"
+
+# Se já existe servidor tmux, aguarda qualquer restore em andamento e attacha.
 if tmux info >/dev/null 2>&1; then
+    while [ -d "$LOCKDIR" ]; do
+        sleep 0.5
+    done
     exec tmux attach
 fi
 
@@ -13,6 +18,15 @@ if [ ! -f "$RESTORE_SCRIPT" ]; then
     echo "Abra o tmux e rode: prefix + I" >&2
     exec tmux new-session -s main
 fi
+
+# Adquire lock atômico. Se outra instância já estiver restaurando, aguarda.
+if ! mkdir "$LOCKDIR" 2>/dev/null; then
+    while [ -d "$LOCKDIR" ]; do
+        sleep 0.5
+    done
+    exec tmux attach
+fi
+trap "rmdir '$LOCKDIR'" EXIT
 
 # Cold start: sobe servidor com sessão temporária detached.
 # O restore.sh precisa de um servidor rodando para executar comandos tmux.

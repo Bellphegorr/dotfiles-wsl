@@ -5,8 +5,8 @@ if tmux info >/dev/null 2>&1; then
     exec tmux attach
 fi
 
-RESTORE_SCRIPT="$HOME/.tmux/plugins/tmux-resurrect/scripts/restore.sh"
-RESURRECT_PLUGIN="$HOME/.tmux/plugins/tmux-resurrect/resurrect.tmux"
+RESTORE_SCRIPT="$HOME/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh"
+RESURRECT_PLUGIN="$HOME/.config/tmux/plugins/tmux-resurrect/resurrect.tmux"
 
 if [ ! -f "$RESTORE_SCRIPT" ]; then
     echo "tmux-resurrect não encontrado em $RESTORE_SCRIPT" >&2

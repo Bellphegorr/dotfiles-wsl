@@ -1,13 +1,31 @@
 #!/usr/bin/env bash
 
 LOCKDIR="/tmp/tmux-restore.lock"
+LOCK_MAX_WAIT=60
 
-# Se já existe servidor tmux, aguarda qualquer restore em andamento e attacha.
-if tmux info >/dev/null 2>&1; then
+# Espera o lock sumir. Se o dono do lock morreu ou o tempo esgotou,
+# remove o lock preso (stale) e segue em frente, evitando travar o terminal.
+wait_for_lock() {
+    local waited=0
     while [ -d "$LOCKDIR" ]; do
+        if [ -f "$LOCKDIR/pid" ] && ! kill -0 "$(cat "$LOCKDIR/pid" 2>/dev/null)" 2>/dev/null; then
+            rm -rf "$LOCKDIR"
+            return
+        fi
         sleep 0.5
+        waited=$((waited + 1))
+        if [ "$waited" -ge "$LOCK_MAX_WAIT" ]; then
+            echo "tmux: lock expirado, removendo $LOCKDIR" >&2
+            rm -rf "$LOCKDIR"
+            return
+        fi
     done
-    exec tmux attach
+}
+
+# Se já existe servidor tmux, as sessões já estão restauradas (ou em
+# andamento por outro processo). Não faz nada: o terminal segue normal.
+if tmux info >/dev/null 2>&1; then
+    exit 0
 fi
 
 RESTORE_SCRIPT="$HOME/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh"
@@ -16,17 +34,16 @@ RESURRECT_PLUGIN="$HOME/.config/tmux/plugins/tmux-resurrect/resurrect.tmux"
 if [ ! -f "$RESTORE_SCRIPT" ]; then
     echo "tmux-resurrect não encontrado em $RESTORE_SCRIPT" >&2
     echo "Abra o tmux e rode: prefix + I" >&2
-    exec tmux new-session -s main
+    exec tmux new-session -d -s main
 fi
 
 # Adquire lock atômico. Se outra instância já estiver restaurando, aguarda.
 if ! mkdir "$LOCKDIR" 2>/dev/null; then
-    while [ -d "$LOCKDIR" ]; do
-        sleep 0.5
-    done
-    exec tmux attach
+    wait_for_lock
+    exit 0
 fi
-trap "rmdir '$LOCKDIR'" EXIT
+echo $$ > "$LOCKDIR/pid"
+trap 'rm -rf "$LOCKDIR"' EXIT
 
 # Cold start: sobe servidor com sessão temporária detached.
 # O restore.sh precisa de um servidor rodando para executar comandos tmux.
@@ -58,11 +75,10 @@ done
 unset TMUX
 tmux kill-session -t "$RESTORE_SESSION" 2>/dev/null || true
 
-# Attach: prioriza "main", senão qualquer sessão, senão cria main do zero.
+# Sem attach: as sessões restauradas ficam vivas no servidor em background.
+# Para entrar, rode `tmux attach` quando quiser.
 if tmux has-session -t main 2>/dev/null; then
-    exec tmux attach -t main
-elif tmux ls >/dev/null 2>&1; then
-    exec tmux attach
-else
-    exec tmux new-session -s main
+    true
+elif ! tmux ls >/dev/null 2>&1; then
+    tmux new-session -d -s main
 fi

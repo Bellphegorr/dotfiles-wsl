@@ -1,84 +1,79 @@
 #!/usr/bin/env bash
 
-LOCKDIR="/tmp/tmux-restore.lock"
-LOCK_MAX_WAIT=60
+# Sobe o servidor tmux em background e restaura o snapshot do
+# tmux-resurrect, sem fazer attach. O terminal atual segue como shell
+# normal (não vira cliente tmux).
 
-# Espera o lock sumir. Se o dono do lock morreu ou o tempo esgotou,
-# remove o lock preso (stale) e segue em frente, evitando travar o terminal.
-wait_for_lock() {
-    local waited=0
-    while [ -d "$LOCKDIR" ]; do
-        if [ -f "$LOCKDIR/pid" ] && ! kill -0 "$(cat "$LOCKDIR/pid" 2>/dev/null)" 2>/dev/null; then
-            rm -rf "$LOCKDIR"
-            return
-        fi
-        sleep 0.5
-        waited=$((waited + 1))
-        if [ "$waited" -ge "$LOCK_MAX_WAIT" ]; then
-            echo "tmux: lock expirado, removendo $LOCKDIR" >&2
-            rm -rf "$LOCKDIR"
-            return
-        fi
-    done
-}
-
-# Se já existe servidor tmux, as sessões já estão restauradas (ou em
-# andamento por outro processo). Não faz nada: o terminal segue normal.
-if tmux info >/dev/null 2>&1; then
-    exit 0
-fi
-
+BOOTSTRAP_SESSION="__bootstrap"
+LOCKFILE="/tmp/tmux-startup.lock"
+SNAPSHOT="${XDG_DATA_HOME:-$HOME/.local/share}/tmux/resurrect/last"
 RESTORE_SCRIPT="$HOME/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh"
 RESURRECT_PLUGIN="$HOME/.config/tmux/plugins/tmux-resurrect/resurrect.tmux"
 
+command -v tmux >/dev/null 2>&1 || exit 0
+
 if [ ! -f "$RESTORE_SCRIPT" ]; then
-    echo "tmux-resurrect não encontrado em $RESTORE_SCRIPT" >&2
-    echo "Abra o tmux e rode: prefix + I" >&2
-    exec tmux new-session -d -s main
+    echo "tmux: tmux-resurrect não encontrado (abra o tmux e rode prefix + I)" >&2
+    exit 1
 fi
 
-# Adquire lock atômico. Se outra instância já estiver restaurando, aguarda.
-if ! mkdir "$LOCKDIR" 2>/dev/null; then
-    wait_for_lock
+# Lock exclusivo: só um terminal restaura por vez. Liberado automaticamente
+# se o processo morrer, então não existe lock órfão.
+exec 9>"$LOCKFILE"
+flock 9
+
+# No WSL com systemd, o login do console (getty) não recebe as variáveis
+# de interop do Windows; reconstruímos o ambiente para o servidor tmux.
+if [ -d /run/WSL ] && WSL_INTEROP="$(ls /run/WSL/*_interop 2>/dev/null | head -1)"; then
+    export WSL_INTEROP
+    WINPATH=""
+    for _ in 1 2 3; do
+        WINPATH="$(wsl.exe -e sh -c 'echo "$PATH"' 2>/dev/null | tr -d '\r')"
+        case "$WINPATH" in *"mnt/c"*) break ;; *) WINPATH="" ; sleep 1 ;; esac
+    done
+    case ":$PATH:" in
+        *":$WINPATH:"*) ;;
+        *) export PATH="$WINPATH:$PATH" ;;
+    esac
+fi
+
+# Só há trabalho se não existir nenhuma sessão (ignora bootstrap órfão
+# deixado por uma execução anterior interrompida).
+if tmux ls 2>/dev/null | grep -qv "^${BOOTSTRAP_SESSION}:"; then
     exit 0
 fi
-echo $$ > "$LOCKDIR/pid"
-trap 'rm -rf "$LOCKDIR"' EXIT
 
-# Cold start: sobe servidor com sessão temporária detached.
-# O restore.sh precisa de um servidor rodando para executar comandos tmux.
-RESTORE_SESSION="__restore_$$"
-tmux new-session -d -s "$RESTORE_SESSION"
+# Sobe o servidor com sessão bootstrap detached: o restore.sh precisa de
+# um servidor rodando para executar comandos tmux. O fd do lock é fechado
+# para o servidor não herdar o lock.
+tmux kill-session -t "$BOOTSTRAP_SESSION" 2>/dev/null
+tmux 9>&- new-session -d -s "$BOOTSTRAP_SESSION"
 
-# O restore.sh usa $TMUX para descobrir o socket do servidor.
-# Como rodamos de fora do tmux, $TMUX está vazio e ele abriria um servidor
-# fantasma. Preenchemos com socket/pid do servidor atual.
+trap 'tmux kill-session -t "$BOOTSTRAP_SESSION" 2>/dev/null' EXIT
+
+# O restore.sh usa $TMUX para achar o socket do servidor; como rodamos de
+# fora do tmux, $TMUX está vazio e ele abriria um servidor fantasma.
 SOCK="$(tmux display -p '#{socket_path}')"
 SRV_PID="$(tmux display -p '#{pid}')"
 export TMUX="${SOCK},${SRV_PID}"
 
-# Garante que o tmux-resurrect registre seus bindings e opções.
-# Útil quando o TPM não carregou o plugin automaticamente (WSL, recarregamentos).
-bash "$RESURRECT_PLUGIN"
+# Se o TPM não carregou o resurrect (WSL, recarregamentos), registra as
+# opções e bindings manualmente.
+if ! tmux show-options -g @resurrect-restore-script-path >/dev/null 2>&1; then
+    bash "$RESURRECT_PLUGIN"
+fi
 
-# Espera o TPM carregar os plugins (máx 5s).
-for _ in {1..10}; do
-    if tmux show-options -g @resurrect-save-script-path >/dev/null 2>&1; then
-        break
-    fi
-    sleep 0.5
-done
+if [ ! -e "$SNAPSHOT" ]; then
+    echo "tmux: nenhum snapshot para restaurar (normal antes do primeiro save)" >&2
+    exit 0
+fi
 
-# Restaura sessões salvas no snapshot.
-"$RESTORE_SCRIPT"
+# Restaura o snapshot. O restore.sh chama switch-client para destacar
+# janelas/sessões ativas; sem cliente isso gera "no current client" no
+# stderr — ruído esperado que filtramos, mantendo erros reais visíveis.
+"$RESTORE_SCRIPT" 2>&1 >/dev/null | grep -v '^no current client$' >&2
 
-unset TMUX
-tmux kill-session -t "$RESTORE_SESSION" 2>/dev/null || true
-
-# Sem attach: as sessões restauradas ficam vivas no servidor em background.
-# Para entrar, rode `tmux attach` quando quiser.
-if tmux has-session -t main 2>/dev/null; then
-    true
-elif ! tmux ls >/dev/null 2>&1; then
-    tmux new-session -d -s main
+if ! tmux ls 2>/dev/null | grep -qv "^${BOOTSTRAP_SESSION}:"; then
+    echo "tmux: restore não criou nenhuma sessão (verifique o snapshot)" >&2
+    exit 1
 fi

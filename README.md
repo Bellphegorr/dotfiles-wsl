@@ -134,7 +134,7 @@ Se a sessão já existir, apenas conecta a ela (ou troca o cliente, se já estiv
 
 ```bash
 # Clonar o TPM
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
 
 # Baixar os plugins listados no tmux.conf
 # Abra o tmux e rode:

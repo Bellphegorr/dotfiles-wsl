@@ -14,7 +14,9 @@ Configurações pessoais para sincronizar entre máquinas.
 | `config/tmux/scripts/mksession.sh` | Script para criar sessões tmux                        |
 | `config/mise/config.toml`          | Gerenciador de versões (mise)                         |
 | `config/opencode/opencode.jsonc`   | Configuração do opencode                              |
-| `config/opencode/agents/*.md`      | Agentes do opencode (orquestrador e implementer)      |
+| `config/opencode/agent/*.md`       | Agentes do opencode em uso (agent-0.2 e planner-0.2)  |
+| `config/opencode/agents/*.md`      | Agentes de teste ainda não instalados (orchestrator e implementer) |
+| `config/opencode/README.md`        | Detalhes dos agentes em uso e em teste                |
 | `docs/orquestracao-de-agentes.md`  | Guia de orquestração de agentes (para o Notion)       |
 
 O `~/.gitconfig` não é versionado: nome, email e credenciais são específicos de

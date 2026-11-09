@@ -296,10 +296,28 @@ O que você quer fazer?
 └── Construir um produto de agentes → LangGraph / CrewAI / SDKs
 ```
 
-## 4. O setup instalado: DeepSeek V4 Pro planeja, Flash executa
+## 4. Agentes: em uso x em teste
 
-Dois agentes em `~/.config/opencode/agents/` (versionados no dotfiles em
-`config/opencode/agents/`):
+### 4.1 Em uso (instalados)
+
+Estes são os agentes ativos hoje, em `~/.config/opencode/agent/` (versionados
+em `config/opencode/agent/`):
+
+| Agente        | Modo    | Modelo            | Papel                                                                                          |
+| ------------- | ------- | ----------------- | ---------------------------------------------------------------------------------------------- |
+| `agent-0.2`   | primary | herdado da sessão | Implementação/orquestração de uma fase aprovada, com artefatos em `.agents/work/` e gates HITL. |
+| `planner-0.2` | primary | herdado da sessão | Planejamento portátil com artefatos fixos em `.agents/work/` antes da implementação.            |
+
+### 4.2 Em teste (não instalados): DeepSeek V4 Pro planeja, Flash executa
+
+> **Nota (09/11/2026):** este é um setup de teste, ainda não instalado. Os
+> arquivos estão em `config/opencode/agents/` no dotfiles, mas não em
+> `~/.config/opencode/agents/`. O T3 Code 0.1.7 com OpenCode 2.x não lista
+> agentes customizados no seletor; use a TUI ou a CLI do OpenCode para
+> escolhê-los.
+
+Dois agentes de teste em `config/opencode/agents/` (para instalar em
+`~/.config/opencode/agents/`):
 
 | Agente         | Modo     | Modelo                        | Papel                             |
 | -------------- | -------- | ----------------------------- | --------------------------------- |
@@ -316,11 +334,14 @@ inspeção e testes. Ele também só pode lançar o subagente `implementer`.
 
 ### Como usar
 
-1. No seletor de agentes da TUI, escolha `orchestrator`.
+1. No seletor de agentes da TUI ou da CLI do OpenCode, escolha `orchestrator`.
+   No T3 Code com OpenCode 2.x, esse seletor customizado não aparece (veja a
+   nota acima).
 2. Peça a tarefa com critérios de aceite: "Implemente X. Deve passar em Y."
 3. O orquestrador explora, monta o briefing, chama o `implementer`, confere o
    diff e roda as checagens.
-4. Se quiser torná-lo padrão, adicione no `opencode.jsonc`:
+4. Se quiser torná-lo padrão, adicione no `opencode.jsonc` (o T3 pode
+   sobrescrever com `build`):
 
 ```jsonc
 {

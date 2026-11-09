@@ -39,9 +39,18 @@ link() {
 
 link "$OPENCODE_DIR/opencode.jsonc" "$CONFIG_DIR/opencode.jsonc"
 
-for file in "$OPENCODE_DIR"/agent/*.md; do
-  link "$file" "$CONFIG_DIR/agent/$(basename "$file")"
-done
+# Older installs linked the legacy agents into the V1 `agent/` directory.
+# Every agent now lives in `agents/`; remove stale links that point here.
+if [[ -d "$CONFIG_DIR/agent" && ! -L "$CONFIG_DIR/agent" ]]; then
+  for dest in "$CONFIG_DIR"/agent/*.md; do
+    [[ -L "$dest" ]] || continue
+    target="$(readlink "$dest" 2>/dev/null || true)"
+    case "$target" in
+      "$OPENCODE_DIR"/*) rm "$dest" ;;
+    esac
+  done
+  rmdir "$CONFIG_DIR/agent" 2>/dev/null || true
+fi
 
 for file in "$OPENCODE_DIR"/agents/*.md; do
   link "$file" "$CONFIG_DIR/agents/$(basename "$file")"

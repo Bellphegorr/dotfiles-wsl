@@ -14,8 +14,7 @@ Configurações pessoais para sincronizar entre máquinas.
 | `config/tmux/scripts/mksession.sh` | Script para criar sessões tmux                        |
 | `config/mise/config.toml`          | Gerenciador de versões (mise)                         |
 | `config/opencode/opencode.jsonc`   | Configuração do opencode                              |
-| `config/opencode/agent/*.md`       | Agentes legados instalados (agent-0.2 e planner-0.2)  |
-| `config/opencode/agents/builder.md`| Agente principal do fluxo diário (um agente + skills) |
+| `config/opencode/agents/*.md`      | Agentes do OpenCode (builder e legados)               |
 | `config/copilot/agents/*.agent.md` | Agentes pessoais do GitHub Copilot                    |
 | `config/agent-workflow/skills/*`   | Skills compartilhadas entre os harnesses              |
 | `config/agent-workflow/templates/` | Templates compartilhados de contexto e memória        |

@@ -165,10 +165,9 @@ Para mudanças pequenas, peça direto, sem plano.
 | Caminho no dotfiles | O que é |
 | --- | --- |
 | `config/opencode/opencode.jsonc` | Configuração e modelo padrão |
-| `config/opencode/agents/builder.md` | O agente |
+| `config/opencode/agents/*.md` | O `builder` e os agentes legados `agent-0.2` e `planner-0.2` |
 | `config/agent-workflow/skills/*/SKILL.md` | Skills compartilhadas com o Copilot |
 | `config/agent-workflow/templates/` | Modelos compartilhados de `AGENTS.md` e memória |
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializador compartilhado de projeto |
 | `config/opencode/scripts/install.sh` | Instala na máquina |
 | `config/opencode/experiments/agents/` | Experimento de 4 agentes, não carregado |
-| `config/opencode/agent/` | Agentes legados `agent-0.2` e `planner-0.2` |

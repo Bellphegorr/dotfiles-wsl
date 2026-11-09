@@ -7,6 +7,14 @@ case "$DIR" in
     "~/"*) DIR="$HOME/${DIR:2}" ;;
 esac
 
+if [ ! -d "$DIR" ]; then
+    echo "mksession: diretório não encontrado: $DIR" >&2
+    exit 1
+fi
+
+# Caminho absoluto, para o tmux não depender do cwd do servidor.
+DIR=$(cd "$DIR" && pwd)
+
 if tmux has-session -t "$SESSION" 2>/dev/null; then
     if [ -n "$TMUX" ]; then
         tmux switch-client -t "$SESSION"
@@ -16,11 +24,9 @@ if tmux has-session -t "$SESSION" 2>/dev/null; then
     exit 0
 fi
 
-tmux new-session -d -s "$SESSION" -n agent
-printf -v cd_command 'cd -- %q' "$DIR"
-tmux send-keys -t "$SESSION:agent" "$cd_command" C-m
-tmux new-window -t "$SESSION" -n terminal
-tmux new-window -t "$SESSION" -n git
+tmux new-session -d -s "$SESSION" -n agent -c "$DIR"
+tmux new-window -t "$SESSION" -n terminal -c "$DIR"
+tmux new-window -t "$SESSION" -n git -c "$DIR"
 
 if [ -n "$TMUX" ]; then
     tmux switch-client -t "$SESSION"

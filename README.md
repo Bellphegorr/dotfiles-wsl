@@ -134,7 +134,8 @@ Restaura sessões tmux salvas ao abrir o primeiro terminal (cold start) ou apena
 
 #### `mksession.sh`
 
-Cria (ou conecta a) uma sessão tmux com as janelas `agent`, `terminal` e `git`.
+Cria (ou conecta a) uma sessão tmux com as janelas `agent`, `terminal` e `git`,
+todas abertas no diretório informado.
 
 ```bash
 # Usar defaults (sessão "projetos", diretório "~/projetos")
@@ -144,7 +145,16 @@ bash config/tmux/scripts/mksession.sh
 bash config/tmux/scripts/mksession.sh meuapp ~/code/meuapp
 ```
 
-Se a sessão já existir, apenas conecta a ela (ou troca o cliente, se já estiver dentro do tmux).
+Para chamar de qualquer lugar, basta linkar o script em `~/.local/bin`
+(diretório já presente no `PATH`):
+
+```bash
+ln -sf ~/dotfiles/config/tmux/scripts/mksession.sh ~/.local/bin/mksession
+mksession meuapp ~/code/meuapp
+```
+
+O diretório aceita `~` e caminhos relativos, e precisa existir. Se a sessão já
+existir, apenas conecta a ela (ou troca o cliente, se já estiver dentro do tmux).
 
 #### Salvamento e restore
 

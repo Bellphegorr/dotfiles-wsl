@@ -31,10 +31,12 @@ if [ -d /run/WSL ] && WSL_INTEROP="$(ls /run/WSL/*_interop 2>/dev/null | head -1
         WINPATH="$(wsl.exe -e sh -c 'echo "$PATH"' 2>/dev/null | tr -d '\r')"
         case "$WINPATH" in *"mnt/c"*) break ;; *) WINPATH="" ; sleep 1 ;; esac
     done
-    case ":$PATH:" in
-        *":$WINPATH:"*) ;;
-        *) export PATH="$WINPATH:$PATH" ;;
-    esac
+    if [ -n "$WINPATH" ]; then
+        case ":$PATH:" in
+            *":$WINPATH:"*) ;;
+            *) export PATH="$WINPATH:$PATH" ;;
+        esac
+    fi
 fi
 
 # Só há trabalho se não existir nenhuma sessão (ignora bootstrap órfão

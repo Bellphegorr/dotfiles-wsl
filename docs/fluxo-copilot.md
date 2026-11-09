@@ -1,8 +1,12 @@
 # Fluxo de trabalho no GitHub Copilot
 
-Este fluxo adapta o `builder` do OpenCode ao Copilot CLI. Os agentes e skills
-ficam versionados neste repositório e podem ser instalados no perfil pessoal do
-Copilot, sem colocar configuração pessoal dentro de repositórios de trabalho.
+Este guia cobre a integração específica do Copilot CLI. As regras do fluxo,
+as skills e o formato dos planos são compartilhados com o OpenCode e estão em
+[Fluxo de trabalho com o builder](fluxo-de-trabalho.md).
+
+Os perfis dos agentes e as skills são instalados no perfil pessoal do Copilot.
+Já `agent-workflow-init` cria `AGENTS.md` e `.agents/` no projeto para guardar
+instruções, memória e planos desse repositório.
 
 ## Instalação pessoal
 
@@ -39,33 +43,14 @@ Copilot e pelo OpenCode. A memória deve conter apenas conhecimento apropriado
 para o repositório; não coloque credenciais, dados privados ou contexto de
 outro projeto.
 
-## Como o Builder trabalha
+## Usar o fluxo compartilhado
 
-| Pedido | Comportamento |
-| --- | --- |
-| Pergunta, explicação ou exploração | Responde diretamente |
-| Mudança pequena e clara | Implementa e valida diretamente |
-| Mudança multi-arquivo, ambígua ou arriscada | Usa `plan`, apresenta o plano e espera aprovação explícita |
-| Plano aprovado | `implement` executa uma tarefa aprovada por vez |
-| Implementação concluída | `review` inspeciona o diff sem editar |
-| Commit, push ou release | `ship` só é usado quando você pedir |
-
-As skills são carregadas pelo Copilot quando relevantes. Também é possível
-pedir, por exemplo, "Use a skill plan para propor a mudança". O Builder não
-deve começar a implementar enquanto um plano aguarda aprovação.
-
-O formato de planejamento é compartilhado com o OpenCode:
-
-```text
-.agents/work/<slug>/
-├── plan.md
-└── progress.md
-```
-
-O `plan.md` contém objetivo, critérios de aceite, restrições, tarefas e
-validação. `progress.md` registra estado, evidências, decisões e bloqueios.
-Planos devem ser curtos; requisitos detalhados adicionais só são necessários
-quando a tarefa realmente pede uma especificação maior.
+No CLI, use `/agent` e escolha **Builder**. Para mudanças pequenas e claras,
+peça a implementação diretamente; para mudanças grandes ou ambíguas, peça a
+skill `plan` e aprove o plano antes de solicitar `implement`. O Copilot carrega
+as skills quando relevantes; também é possível pedir explicitamente, por
+exemplo, "Use a skill plan". Para o comportamento completo e os artefatos,
+consulte o [guia compartilhado](fluxo-de-trabalho.md).
 
 ## Agentes legados
 
@@ -84,5 +69,9 @@ formato antigo de cinco arquivos (`request.md`, `prd.md`,
 | `config/agent-workflow/templates/` | Templates compartilhados |
 | `config/copilot/scripts/install.sh` | Instala o agente Copilot e expõe as skills compartilhadas |
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Prepara o contexto de um projeto |
+
+Ao integrar outro harness, siga a seção
+[Adicionar outro harness](fluxo-de-trabalho.md#adicionar-outro-harness) em vez
+de duplicar skills ou templates.
 
 Referências oficiais: [custom agents no Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli) e [agent skills no Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills).

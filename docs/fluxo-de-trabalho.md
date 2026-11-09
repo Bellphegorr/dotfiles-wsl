@@ -3,6 +3,10 @@
 > Um agente, quatro skills e o contexto do projeto em arquivos.
 > Atualizado em 09/11/2026. Para o porquê desse desenho, veja
 > [orquestracao-de-agentes.md](orquestracao-de-agentes.md).
+>
+> As regras e os artefatos compartilhados ficam em `config/agent-workflow/`.
+> Este guia explica o uso no OpenCode; para instalação e particularidades do
+> Copilot, veja [fluxo-copilot.md](fluxo-copilot.md).
 
 ## Visão geral
 
@@ -22,6 +26,16 @@ cada projeto (criado uma vez por projeto)
         ├── plan.md
         └── progress.md
 ```
+
+## Adicionar outro harness
+
+Não copie as skills nem os templates. Reuse `config/agent-workflow/` e crie
+somente o adaptador específico do harness: perfil/instruções do agente,
+instalação e descoberta das skills. Antes de declarar suporte, confirme que o
+harness encontra e carrega `SKILL.md`, interpreta seu frontmatter e consegue
+usar os arquivos ou recursos referenciados; valide também invocação,
+permissões, aprovações e uma instalação repetida. Se o formato não for
+compatível, prefira um adaptador ou gerador a manter cópias manuais.
 
 ## Instalação
 

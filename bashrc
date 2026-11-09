@@ -120,7 +120,7 @@ fi
 eval "$(~/.local/bin/mise activate bash)"
 
 # opencode
-export PATH=/home/jose/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"
 
 # tmux configurations
 if command -v tmux >/dev/null && [ -z "$TMUX" ] && [ -n "$PS1" ]; then

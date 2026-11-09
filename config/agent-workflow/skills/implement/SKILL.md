@@ -25,6 +25,8 @@ Execute **one approved task** at a time. Do not re-plan or expand the scope.
 - Run the narrowest validation first; then the broader one, if the plan asks.
 - If validation fails, fix the same task and rerun the same check before
   expanding the scope.
+- If the same fix fails twice, stop and explain the blocker instead of
+  continuing with speculative changes.
 - Do not weaken tests, remove assertions, add speculative abstractions, do
   drive-by refactors or leave TODOs.
 - Do not commit or push.

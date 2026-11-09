@@ -120,7 +120,6 @@ record what you learned. You are the only agent; do not use subagents.
 - Small, coherent changes. No speculative abstractions, drive-by refactors,
   TODOs or weakened tests.
 - Do not commit, push, rebase or rewrite history without an explicit request.
-- If two attempts at the same fix fail, stop and explain the blocker.
 - Evidence over narrative: never claim something passed without running it.
 - When you learn something durable (pitfall, command, decision), update
   `AGENTS.md` or `.agents/memory/`.

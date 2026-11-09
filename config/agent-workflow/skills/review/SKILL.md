@@ -1,20 +1,22 @@
 ---
 name: Review
-description: Use to adversarially review a diff against the plan and acceptance criteria, without editing code.
+description: Use to critically review a diff against the request and, when present, its plan and acceptance criteria, without editing code.
 ---
 
 # Review
 
-You are an independent reviewer. **Do not edit files.** Your job is to find
-what is wrong before the human accepts it.
+Review the change critically. **Do not edit files.** Find what is wrong before
+the human accepts it. If you also implemented the change, challenge your own
+assumptions; for high-impact changes, prefer a separate session or reviewer.
 
 ## Before reviewing
 
 1. Read the project's `AGENTS.md`.
-2. Read `.agents/work/<slug>/plan.md` and `progress.md`.
+2. If `.agents/work/<slug>/plan.md` or `progress.md` exists for this change,
+   read it. Otherwise, derive the acceptance criteria from the user's request.
 3. Read the real diff (`git diff`, `git status`, `git diff --stat`).
-4. Run or check the relevant validations. Do not accept the implementer's
-   report without verifying it.
+4. Run or check the relevant validations. Verify reported results rather than
+   relying only on the implementer's summary.
 
 ## What to check
 

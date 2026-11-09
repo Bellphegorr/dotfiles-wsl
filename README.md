@@ -16,12 +16,15 @@ Configurações pessoais para sincronizar entre máquinas.
 | `config/opencode/opencode.jsonc`   | Configuração do opencode                              |
 | `config/opencode/agent/*.md`       | Agentes legados instalados (agent-0.2 e planner-0.2)  |
 | `config/opencode/agents/builder.md`| Agente principal do fluxo diário (um agente + skills) |
-| `config/opencode/skills/*`         | Skills plan, implement, review e ship                 |
-| `config/opencode/templates/AGENTS.md` | Template de instruções por projeto                 |
-| `config/opencode/scripts/install.sh` | Instala config, agentes, skills e agent-workflow-init via symlink |
-| `config/opencode/scripts/init-agent-workflow.sh` | Cria AGENTS.md e .agents/memory/ no projeto |
+| `config/copilot/agents/*.agent.md` | Agentes pessoais do GitHub Copilot                    |
+| `config/agent-workflow/skills/*`   | Skills compartilhadas entre os harnesses              |
+| `config/agent-workflow/templates/` | Templates compartilhados de contexto e memória        |
+| `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializa o contexto de um projeto |
+| `config/opencode/scripts/install.sh` | Instala a configuração pessoal do OpenCode          |
+| `config/copilot/scripts/install.sh` | Instala agente Copilot e expõe skills comuns         |
 | `config/opencode/experiments/agents/*.md` | Experimento de orquestração com 4 agentes      |
 | `docs/fluxo-de-trabalho.md`        | Como usar o builder, skills, memória e templates      |
+| `docs/fluxo-copilot.md`            | Como usar o novo fluxo no Copilot                     |
 | `docs/orquestracao-de-agentes.md`  | Orquestração de agentes e mapa de ferramentas         |
 
 O `~/.gitconfig` não é versionado: nome, email e credenciais são específicos de
@@ -45,6 +48,16 @@ cada máquina.
 ### AI
 
 - opencode
+- GitHub Copilot
+
+Para instalar os agentes pessoais do Copilot no CLI:
+
+```bash
+bash ~/dotfiles/config/copilot/scripts/install.sh
+```
+
+O `Builder` oferece o fluxo novo. `Planner 0.2` e `Agent 0.2` permanecem
+disponíveis como agentes legados. Veja [o guia do Copilot](docs/fluxo-copilot.md).
 
 ### Editores
 

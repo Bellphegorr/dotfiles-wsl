@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Installs agents, skills and the agent-workflow-init command as symlinks to the
+# Installs OpenCode agents plus shared skills and the agent-workflow-init command as symlinks to the
 # dotfiles. Safe to rerun: correct links are kept and different files are moved
 # to a backup in ~/.local/state before being replaced.
 set -euo pipefail
 
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 OPENCODE_DIR="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
+WORKFLOW_DIR="$(cd "$OPENCODE_DIR/../agent-workflow" && pwd)"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
 BIN_DIR="$HOME/.local/bin"
 # Outside ~/.config/opencode so OpenCode does not load backups as agents/skills.
@@ -46,12 +47,12 @@ for file in "$OPENCODE_DIR"/agents/*.md; do
   link "$file" "$CONFIG_DIR/agents/$(basename "$file")"
 done
 
-for dir in "$OPENCODE_DIR"/skills/*/; do
+for dir in "$WORKFLOW_DIR"/skills/*/; do
   dir="${dir%/}"
   link "$dir" "$CONFIG_DIR/skills/$(basename "$dir")"
 done
 
-link "$OPENCODE_DIR/scripts/init-agent-workflow.sh" "$BIN_DIR/agent-workflow-init"
+link "$WORKFLOW_DIR/scripts/init-agent-workflow.sh" "$BIN_DIR/agent-workflow-init"
 
 case ":$PATH:" in
   *":$BIN_DIR:"*) ;;

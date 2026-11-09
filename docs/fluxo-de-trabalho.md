@@ -8,8 +8,8 @@
 
 ```text
 dotfiles (instalado uma vez por máquina)
-├── builder      → o agente
-└── skills       → plan, implement, review, ship
+├── perfis      → um builder específico para cada harness
+└── workflow    → skills, templates e inicializador compartilhados
 
 cada projeto (criado uma vez por projeto)
 ├── AGENTS.md            → manual do projeto para o agente
@@ -31,11 +31,15 @@ cada projeto (criado uma vez por projeto)
 bash ~/dotfiles/config/opencode/scripts/install.sh
 ```
 
-Cria symlinks do dotfiles para `~/.config/opencode/` (`opencode.jsonc`,
-agentes e skills) e
-`~/.local/bin/agent-workflow-init`. Pode rodar de novo; arquivos diferentes vão
-para `~/.local/state/opencode-dotfiles-backup/` antes de serem trocados.
-Reinicie o OpenCode depois.
+Cria symlinks para a configuração e os agentes do OpenCode, e instala as skills
+compartilhadas em `~/.config/opencode/skills/`. O instalador do Copilot aponta
+para as mesmas skills em `~/.copilot/skills/`. Os templates e o inicializador
+ficam em `config/agent-workflow/`; ambos os instaladores apontam para essa
+mesma fonte e para o comando `agent-workflow-init`.
+
+Pode rodar de novo; arquivos diferentes vão para
+`~/.local/state/opencode-dotfiles-backup/` antes de serem trocados. Reinicie o
+OpenCode depois.
 
 **Uma vez por projeto:**
 
@@ -148,9 +152,9 @@ Para mudanças pequenas, peça direto, sem plano.
 | --- | --- |
 | `config/opencode/opencode.jsonc` | Configuração e modelo padrão |
 | `config/opencode/agents/builder.md` | O agente |
-| `config/opencode/skills/*/SKILL.md` | As skills |
-| `config/opencode/templates/` | Modelos de `AGENTS.md` e da memória |
+| `config/agent-workflow/skills/*/SKILL.md` | Skills compartilhadas com o Copilot |
+| `config/agent-workflow/templates/` | Modelos compartilhados de `AGENTS.md` e memória |
+| `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializador compartilhado de projeto |
 | `config/opencode/scripts/install.sh` | Instala na máquina |
-| `config/opencode/scripts/init-agent-workflow.sh` | Prepara um projeto (`agent-workflow-init`) |
 | `config/opencode/experiments/agents/` | Experimento de 4 agentes, não carregado |
 | `config/opencode/agent/` | Agentes legados `agent-0.2` e `planner-0.2` |

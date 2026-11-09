@@ -3,8 +3,8 @@ set -euo pipefail
 
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
-OPENCODE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-TEMPLATES_DIR="$OPENCODE_DIR/templates"
+WORKFLOW_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+TEMPLATES_DIR="$WORKFLOW_DIR/templates"
 
 target="${1:-.}"
 
@@ -37,7 +37,7 @@ done
 echo
 echo "Done. Next steps:"
 echo "1. Fill in commands and invariants in AGENTS.md."
-echo "2. Open OpenCode in the project and pick the builder agent."
+echo "2. Open your coding harness and choose its builder agent."
 echo "3. Large task: ask it to use the plan skill."
 echo "4. Execute: implement skill. Review: review skill."
 echo "5. Ship: ship skill, only when you ask."

@@ -61,34 +61,6 @@ O que funciona melhor:
 **Regra de bolso:** só divida o que não depende entre si. Se o briefing fica
 maior que a tarefa, não divida.
 
-### O experimento guardado
-
-Ficou em `config/opencode/experiments/agents/` (não carregado) um setup de 4
-agentes para comparar com o builder:
-
-| Agente | Modo | Modelo | Papel |
-| --- | --- | --- | --- |
-| `orchestrator` | primary | DeepSeek V4 Pro | Decide quando planejar, executar e revisar; não edita |
-| `planner` | subagent | DeepSeek V4 Pro | Cria o plano |
-| `implementer` | subagent | DeepSeek V4.1 Flash | Edita e testa |
-| `reviewer` | subagent | DeepSeek V4 Pro | Revisa sem editar |
-
-Só adote se vencer o builder na mesma tarefa em qualidade, tempo, custo e
-número de intervenções suas.
-
-Para testar, copie os agentes, reinicie o OpenCode e escolha `orchestrator`:
-
-```bash
-mkdir -p ~/.config/opencode/agents
-cp ~/dotfiles/config/opencode/experiments/agents/*.md ~/.config/opencode/agents/
-```
-
-Para remover:
-
-```bash
-rm ~/.config/opencode/agents/{orchestrator,planner,implementer,reviewer}.md
-```
-
 ## 4. Mapa de ferramentas
 
 Ferramenta é camada. Um cockpit não substitui o harness, e um assistente

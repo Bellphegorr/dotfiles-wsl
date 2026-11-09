@@ -170,4 +170,3 @@ Para mudanças pequenas, peça direto, sem plano.
 | `config/agent-workflow/templates/` | Modelos compartilhados de `AGENTS.md` e memória |
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializador compartilhado de projeto |
 | `config/opencode/scripts/install.sh` | Instala na máquina |
-| `config/opencode/experiments/agents/` | Experimento de 4 agentes, não carregado |

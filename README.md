@@ -21,7 +21,6 @@ Configurações pessoais para sincronizar entre máquinas.
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializa o contexto de um projeto |
 | `config/opencode/scripts/install.sh` | Instala a configuração pessoal do OpenCode          |
 | `config/copilot/scripts/install.sh` | Instala agente Copilot e expõe skills comuns         |
-| `config/opencode/experiments/agents/*.md` | Experimento de orquestração com 4 agentes      |
 | `docs/fluxo-de-trabalho.md`        | Como usar o builder, skills, memória e templates      |
 | `docs/fluxo-copilot.md`            | Como usar o novo fluxo no Copilot                     |
 | `docs/orquestracao-de-agentes.md`  | Orquestração de agentes e mapa de ferramentas         |

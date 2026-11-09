@@ -14,10 +14,15 @@ Configurações pessoais para sincronizar entre máquinas.
 | `config/tmux/scripts/mksession.sh` | Script para criar sessões tmux                        |
 | `config/mise/config.toml`          | Gerenciador de versões (mise)                         |
 | `config/opencode/opencode.jsonc`   | Configuração do opencode                              |
-| `config/opencode/agent/*.md`       | Agentes do opencode em uso (agent-0.2 e planner-0.2)  |
-| `config/opencode/agents/*.md`      | Agentes de teste ainda não instalados (orchestrator e implementer) |
-| `config/opencode/README.md`        | Detalhes dos agentes em uso e em teste                |
-| `docs/orquestracao-de-agentes.md`  | Guia de orquestração de agentes (para o Notion)       |
+| `config/opencode/agent/*.md`       | Agentes legados instalados (agent-0.2 e planner-0.2)  |
+| `config/opencode/agents/builder.md`| Agente principal do fluxo diário (um agente + skills) |
+| `config/opencode/skills/*`         | Skills plan, implement, review e ship                 |
+| `config/opencode/templates/AGENTS.md` | Template de instruções por projeto                 |
+| `config/opencode/scripts/install.sh` | Instala config, agentes, skills e agent-workflow-init via symlink |
+| `config/opencode/scripts/init-agent-workflow.sh` | Cria AGENTS.md e .agents/memory/ no projeto |
+| `config/opencode/experiments/agents/*.md` | Experimento de orquestração com 4 agentes      |
+| `docs/fluxo-de-trabalho.md`        | Como usar o builder, skills, memória e templates      |
+| `docs/orquestracao-de-agentes.md`  | Orquestração de agentes e mapa de ferramentas         |
 
 O `~/.gitconfig` não é versionado: nome, email e credenciais são específicos de
 cada máquina.

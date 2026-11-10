@@ -2,5 +2,13 @@
   "$schema": "https://opencode.ai/config.json",
   // OpenCode 2 ignores `model` on primary agents (builder included); new
   // sessions use this default unless another model is picked.
-  "model": "opencode-go/deepseek-v4.1-flash#high"
+  "model": "opencode-go/deepseek-v4.1-flash#high",
+  "mcp": {
+    "servers": {
+      "notion": {
+        "type": "remote",
+        "url": "https://mcp.notion.com/mcp"
+      }
+    }
+  }
 }

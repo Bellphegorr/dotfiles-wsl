@@ -48,6 +48,9 @@ cada máquina.
 - opencode
 - GitHub Copilot
 
+O `config/opencode/opencode.jsonc` também registra o MCP remoto do Notion.
+Em cada máquina nova, autentique uma vez pelo `/mcps` do OpenCode.
+
 Para instalar os agentes pessoais do Copilot no CLI:
 
 ```bash

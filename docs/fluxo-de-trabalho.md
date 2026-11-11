@@ -1,7 +1,7 @@
 # Fluxo de trabalho com o builder
 
-> Um agente, quatro skills e o contexto do projeto em arquivos.
-> Atualizado em 09/11/2026. Para o porquê desse desenho, veja
+> Um agente, cinco skills e o contexto do projeto em arquivos.
+> Atualizado em 10/11/2026. Para o porquê desse desenho, veja
 > [orquestracao-de-agentes.md](orquestracao-de-agentes.md).
 >
 > As regras e os artefatos compartilhados ficam em `config/agent-workflow/`.
@@ -22,7 +22,7 @@ cada projeto (criado uma vez por projeto)
     │   ├── decisions.md
     │   ├── gotchas.md
     │   └── handoff.md
-    └── work/<tarefa>/   → plano e progresso de tarefas grandes
+    └── work/<tarefa>/   → plano e progresso quando necessários
         ├── plan.md
         └── progress.md
 ```
@@ -51,6 +51,10 @@ para as mesmas skills em `~/.copilot/skills/`. Os templates e o inicializador
 ficam em `config/agent-workflow/`; ambos os instaladores apontam para essa
 mesma fonte e para o comando `agent-workflow-init`.
 
+Ao adicionar uma skill nova, rode novamente o instalador do harness: os links
+são individuais por skill. Alterar uma skill já ligada não exige reinstalar,
+mas uma sessão em andamento pode precisar ser reiniciada para relê-la.
+
 Pode rodar de novo; arquivos diferentes vão para
 `~/.local/state/opencode-dotfiles-backup/` antes de serem trocados. Reinicie o
 OpenCode depois.
@@ -64,29 +68,80 @@ agent-workflow-init .
 
 Copia o `AGENTS.md` e os arquivos de memória a partir dos templates. Não
 sobrescreve nada que já exista. Depois **preencha o `AGENTS.md`** com os
-comandos reais do projeto.
+comandos reais e a política de branches do projeto. Projetos já inicializados
+não recebem alterações de template automaticamente.
 
 ## O agente: builder
 
 Agente principal. Roda no modelo padrão do `opencode.jsonc` (DeepSeek V4.1
-Flash). Trabalha sozinho, sem subagentes. Antes de mexer em qualquer coisa, lê o `AGENTS.md` e a memória.
+Flash). Trabalha diretamente por padrão, sem orquestração implícita. Antes de
+mexer em qualquer coisa, lê o `AGENTS.md` e a memória disponíveis. Se faltarem,
+consulta as convenções do repositório, sem inventar comandos ou resultados.
 
 | Pedido | O que ele faz |
 | --- | --- |
 | Pergunta ou explicação | Responde direto |
-| Mudança pequena e clara | Implementa e valida direto |
-| Mudança grande, ambígua ou arriscada | Usa `plan` e espera sua aprovação |
-| Plano aprovado | Usa `implement`, uma tarefa por vez |
-| Implementação pronta | Usa `review` |
-| Você pede commit ou push | Usa `ship` |
+| Mudança pequena e clara | Usa `implement`, sem plano formal, e revisa o resultado |
+| Incerteza, risco ou pedido de planejamento | Usa `plan`; continua se a execução já estiver autorizada e não houver decisão material pendente |
+| Escopo ou plano autorizado | Executa uma unidade coerente por vez, sem novo “ok” por tarefa |
+| Commit autorizado ou candidato final | Usa `review`, incluindo commits já feitos |
+| Você pede commit, push ou PR | Usa `ship` apenas para as operações autorizadas |
+| Você pede melhoria do processo | Usa `reflect` e propõe o menor ajuste útil |
 
-Regras fixas: não amplia o escopo, não diz que passou sem rodar, e para depois
-de duas tentativas falhas na mesma correção.
+Tocar vários arquivos não obriga a criar plano. Regras fixas: não amplia o
+escopo, não enfraquece testes e não declara sucesso sem evidência. Duas
+tentativas falhas exigem reavaliar o diagnóstico; não provocam uma devolução
+automática ao humano nem justificam tentativas sem progresso.
 
-**Pede confirmação antes de:** `git commit`, `git push`, `git rebase`,
-`git reset --hard`, `git clean`, `git restore`, `git checkout -- …`,
-`git branch -D`, `git stash drop/clear` e `rm` recursivo. Vale também para
-`git -C . commit` e para comandos encadeados com `&&`.
+## Autorização e pausas
+
+Não há modos de execução para configurar. Um pedido explícito para
+“implementar, validar, fazer commits e abrir PR” cobre essa sequência no
+escopo definido, incluindo o push necessário, sem nova aprovação por etapa.
+“Faça commit” não autoriza push; publicar ou abrir PR não autoriza merge,
+release ou deploy. Perguntar, pedir apenas um plano ou dizer “termine” não
+autoriza publicação.
+
+Você pode acrescentar “pare depois do plano”, “pare a cada entrega” ou
+“pare antes de publicar”. O builder respeita esses pontos e para também
+quando precisa de uma decisão material ou encontra um bloqueio real.
+Restrições do projeto continuam valendo.
+
+**Permissões são outra camada.** O perfil do OpenCode mantém `ask` para
+commit/push, rebase, comandos de descarte e `rm` recursivo, inclusive as formas
+com opções globais de Git previstas no perfil. O Copilot segue as permissões
+do próprio CLI e do ambiente. A autorização da tarefa não elimina esses
+prompts. Este fluxo não altera permissões nem recomenda `--auto` nesta
+máquina compartilhada: essa flag pode autoaprovar comandos marcados `ask`.
+
+## Branch, validação e entrega
+
+Antes de implementar, o builder confere o estado local, identifica a política
+de branches e prepara uma branch de trabalho não protegida. Registra a base
+de comparação e preserva alterações alheias, inclusive as já staged. Se
+precisar de worktree no T3 Code, usa a ferramenta nativa para vinculá-la à
+thread; uma worktree criada no shell não faz essa vinculação. Branch e
+worktree não isolam execução nem credenciais.
+
+Cada unidade recebe validação focada e review antes de um commit autorizado.
+O conjunto final recebe revisão acumulada e as verificações completas
+aplicáveis, após a última mudança material, sem repetir toda a suíte a cada
+commit. O review considera commits, staged/unstaged e arquivos novos;
+`git diff` vazio não prova que a branch não mudou.
+
+Antes do push, confere remote, base e destino real: estar numa feature branch
+não impede um push errado para `HEAD:main`. Nunca publica diretamente na
+principal/protegida nem usa force push. Essas instruções não substituem
+permissões do harness ou proteções no servidor.
+
+Quando autorizado, abre um **draft PR** e confere CI no SHA publicado.
+Pendentes, cancelados ou pulados não são “verde”; sem CI, declara validação
+apenas local. No T3, usa os recursos nativos para vincular o PR e aguardar
+checks quando necessário. O PR aberto não é prova de conclusão.
+
+Se houver bloqueio, preserva o trabalho e relata o último estado validado,
+as falhas e o que falta para avançar. Não descarta alterações nem commita
+trabalho incompleto só para apresentar uma branch limpa.
 
 ## As skills
 
@@ -96,10 +151,11 @@ você pede ("use a skill plan").
 
 | Skill | O que faz | O que não faz |
 | --- | --- | --- |
-| `plan` | Cria `plan.md` de uma página (objetivo, critérios de aceite, tarefas, validação) e `progress.md` | Não escreve código; espera seu "ok" |
-| `implement` | Executa **uma** tarefa do plano, valida e registra no `progress.md` | Não amplia escopo nem faz commit |
-| `review` | Lê o diff, roda testes e lista achados por gravidade | Não edita nada |
-| `ship` | Valida tudo e faz commit/push só dos arquivos certos | Só roda quando você pede; nunca força push |
+| `plan` | Define resultado, limites, critérios e evidências; cria plano/progresso quando necessários | Não implementa; pedido só de plano termina no plano |
+| `implement` | Executa uma unidade por vez, testa, revisa e usa `ship` para commits autorizados | Não exige plano artificial nem publica fora do pedido |
+| `review` | Audita a unidade ou o conjunto final, incluindo commits e alterações locais | Não edita, commita, publica nem transforma aprovação técnica em autorização |
+| `ship` | Faz commits, push da branch e draft PR quando autorizados; verifica evidências e CI | Não força push nem faz merge/release implícitos |
+| `reflect` | Analisa atritos recorrentes e propõe o menor ajuste útil em regras ou ferramentas | Não muda skills/configurações silenciosamente nem cria algo sem necessidade |
 
 > O `review` é feito pelo próprio builder. Para algo importante, rode numa
 > sessão nova ou com outro modelo.
@@ -118,12 +174,14 @@ quando aprende algo:
 | --- | --- |
 | `decisions.md` | Decisões e o porquê, para não refazer o que foi descartado |
 | `gotchas.md` | Erros que já custaram tempo: sintoma, causa e contorno |
-| `handoff.md` | Onde parou e o próximo passo, para retomar outro dia |
+| `handoff.md` | Estado, branch/base, evidências, bloqueios e próximo passo |
 
-A ideia: cada erro vira uma regra e não se repete. Você também pode editar.
+Uma falha comprovada pode virar teste ou lição; não é necessário inventar uma
+regra após cada erro. Você também pode editar. Nunca guarde segredos ou
+histórico de outros projetos nessa memória.
 
-**`.agents/work/<tarefa>/`** — plano e progresso de uma tarefa grande, criados
-pela skill `plan` e atualizados pela `implement`.
+**`.agents/work/<tarefa>/`** — plano e progresso quando o trabalho justifica
+esses artefatos, criados pela skill `plan` e atualizados durante a execução.
 
 ## Um dia de uso
 
@@ -133,18 +191,35 @@ opencode            # escolha o agente "builder"
 ```
 
 ```text
-Você:    Use a skill plan para adicionar exportação CSV no relatório.
-         Critérios: botão no relatório; CSV com as colunas visíveis; teste passa.
-Builder: [cria plan.md com 3 tarefas e espera]
-Você:    ok, faça a tarefa 1
-Builder: [implementa, roda testes, atualiza progress.md]
-Você:    próxima
-...
-Você:    use a skill review
-Você:    use a skill ship para commitar
+Você:    Implemente exportação CSV no relatório, com as colunas visíveis.
+         Valide, faça commits pequenos e abra um PR.
+Builder: [entende, faz plano curto se necessário e prepara a branch]
+         [implementa, testa, revisa e commita unidades coerentes]
+         [revisa o conjunto, valida, publica a branch e abre draft PR]
+         [confere CI e relata resultado ou bloqueio com evidências]
 ```
 
-Para mudanças pequenas, peça direto, sem plano.
+Outros pedidos seguem o mesmo fluxo, com limites diferentes:
+
+```text
+Implemente X e valide, sem commit nem push.
+Use plan para X e pare depois do plano.
+Implemente X com commits locais; pare a cada entrega para eu avaliar.
+```
+
+Uma aprovação do plano autoriza sua implementação, não acrescenta commit ou
+publicação se isso não fazia parte do pedido.
+
+## Melhoria contínua com reflect
+
+Peça, por exemplo: “Use reflect para avaliar os atritos desta tarefa e proponha
+melhorias no nosso fluxo”. A skill confere a evidência e as regras existentes
+antes de sugerir mudanças. Pode recomendar um teste, uma nota de memória, um
+ajuste numa skill existente ou nenhuma alteração.
+
+Ela não vasculha históricos de outros projetos nem altera skills, configurações
+ou permissões por conta própria. O registro normal de fatos úteis do projeto
+não exige rodar reflect depois de cada edição.
 
 ## Limitações
 

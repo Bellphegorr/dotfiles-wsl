@@ -23,6 +23,10 @@ instala o comando comum `agent-workflow-init` (mantém também
 preservados em `~/.local/state/copilot-dotfiles-backup/`. Reinicie o Copilot
 CLI depois da instalação.
 
+Para expor uma skill nova, como `reflect`, rode novamente o instalador:
+os links são individuais. As skills já ligadas apontam para a fonte compartilhada,
+mas uma sessão em andamento pode precisar reiniciar para reler mudanças.
+
 Para conferir e escolher agentes no CLI, use `/agent`. Escolha **Builder** para
 o fluxo novo. Os agentes `Planner 0.2` e `Agent 0.2` continuam disponíveis
 como fluxo legado.
@@ -36,7 +40,8 @@ agent-workflow-init .
 
 O comando cria `AGENTS.md`, `.agents/memory/` e `.agents/work/` sem
 sobrescrever arquivos existentes. Preencha `AGENTS.md` com os comandos de
-teste, lint, typecheck e build, além dos invariantes do projeto.
+teste, lint, typecheck e build, além dos invariantes e da política de branches.
+Alterar os templates do dotfiles não migra projetos existentes automaticamente.
 
 O mesmo `AGENTS.md`, memória e artefatos de trabalho podem ser lidos pelo
 Copilot e pelo OpenCode. A memória deve conter apenas conhecimento apropriado
@@ -46,11 +51,25 @@ outro projeto.
 ## Usar o fluxo compartilhado
 
 No CLI, use `/agent` e escolha **Builder**. Para mudanças pequenas e claras,
-peça a implementação diretamente; para mudanças grandes ou ambíguas, peça a
-skill `plan` e aprove o plano antes de solicitar `implement`. O Copilot carrega
-as skills quando relevantes; também é possível pedir explicitamente, por
-exemplo, "Use a skill plan". Para o comportamento completo e os artefatos,
-consulte o [guia compartilhado](fluxo-de-trabalho.md).
+peça a implementação diretamente. O Builder usa `plan` quando incerteza, risco
+ou seu pedido justificam um plano, não apenas por haver vários arquivos.
+Se você já autorizou a execução do escopo, ele segue depois de planejar;
+se pediu só um plano, ele espera.
+
+Um pedido como “implemente X, valide, faça commits pequenos e abra um PR”
+autoriza essa sequência sem novo “ok” por tarefa. “Faça commit” fica local;
+PR não autoriza merge/release. Para avaliar entregas intermediárias, acrescente
+“pare depois do plano” ou “pare a cada entrega”. As permissões do CLI/T3 e as
+restrições do projeto continuam valendo; o Builder não as desativa.
+
+As cinco skills são compartilhadas: `plan`, `implement`, `review`, `ship` e
+`reflect`. O Copilot as carrega quando relevantes; também é
+possível pedir explicitamente, como “use reflect para propor melhorias com
+base nesta tarefa”. Reflexão não autoriza mudanças globais silenciosas.
+
+Para branch/PR, validação, bloqueios e artefatos, consulte o
+[guia compartilhado](fluxo-de-trabalho.md). No T3, uma worktree necessária deve
+ser vinculada à thread pelas ferramentas nativas; não é uma sandbox de execução.
 
 ## Agentes legados
 

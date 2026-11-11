@@ -1,7 +1,7 @@
 # Orquestração de agentes e ferramentas
 
 > O que é orquestração, quando vale a pena e quais ferramentas existem.
-> Atualizado em 09/11/2026. O fluxo que uso no dia a dia está em
+> Atualizado em 10/11/2026. O fluxo que uso no dia a dia está em
 > [fluxo-de-trabalho.md](fluxo-de-trabalho.md).
 
 ## 1. O conceito
@@ -44,9 +44,40 @@ O que funciona melhor:
 - **`AGENTS.md`** com comandos, invariantes e armadilhas;
 - **memória em arquivo** por projeto;
 - **verificação** por testes, CI e revisão humana;
-- **cada falha vira regra** na skill ou no `AGENTS.md`.
+- **falhas comprovadas viram testes ou lições úteis**, sem criar regras
+  automaticamente para cada erro.
 
 É o que o [fluxo do builder](fluxo-de-trabalho.md) implementa.
+
+### O que adaptamos do Akita
+
+Mantemos um agente como ponto de entrada e usamos as skills como procedimentos,
+sem adicionar modos de execução ou um novo orquestrador. As instruções foram
+adaptadas ao nosso ambiente, não copiadas com as premissas pessoais dele:
+
+| No nosso fluxo | Referência do Akita |
+| --- | --- |
+| `plan`: resultado e evidência proporcional | `verification-planning` |
+| `implement`: uma unidade, teste, revisão e commit autorizado | `github-resolution` |
+| `review`: evidência independente e revisão do conjunto final | `pr-audit`, `pr-post-audit` |
+| Critério de clareza dentro de `review`, sem skill extra | `simplify` |
+| `reflect`: melhorar o processo com evidência e aprovação | `reflect` |
+| `ship`: publicação autorizada e checks no SHA entregue | Limites de `github-resolution` e `release` |
+
+O pedido do usuário pode autorizar o caminho inteiro até o PR; as pausas são
+pedidas em linguagem comum, como “pare a cada entrega”. Isso reduz aprovações
+repetidas do procedimento, não as permissões reais do harness.
+
+Nosso ponto de entrega é **draft PR**, sem merge, release ou deploy implícito.
+O fluxo dele também prevê merges autorizados. Não importamos o pipeline inteiro,
+especialistas obrigatórios, limiares por quantidade de tickets, limpeza
+automática ou uma skill para worktrees: no T3, a vinculação da worktree é
+responsabilidade das ferramentas nativas. Worktree não isola execução.
+
+Kaizen é a prática de aprender com o trabalho; a skill pública usada como
+referência para essa reflexão chama-se `reflect`. Ela pode concluir que nada
+precisa mudar. Mudanças nas próprias skills/configurações exigem aprovação;
+não há obrigação de criar uma nova regra após cada tarefa.
 
 ## 3. Quando multi-agente vale
 
@@ -104,6 +135,8 @@ As variantes `#low`, `#high` e `#max` controlam o esforço de raciocínio. Use
 ## Referências
 
 - Workflow do Akita: https://ailair.akitaonrails.com/pt-br/workflow/
+- Skills do Akita, usadas como referência para adaptação:
+  https://github.com/akitaonrails/my-skills
 - Hot take: Harness, Loop Engineering, Graph Engineering são Bullshit:
   https://akitaonrails.com/2026/08/18/hot-take-harness-loop-engineering-graph-engineering-sao-bullshit/
 - Vale a pena misturar 2 modelos?:

@@ -62,10 +62,13 @@ PR não autoriza merge/release. Para avaliar entregas intermediárias, acrescent
 “pare depois do plano” ou “pare a cada entrega”. As permissões do CLI/T3 e as
 restrições do projeto continuam valendo; o Builder não as desativa.
 
-As cinco skills são compartilhadas: `plan`, `implement`, `review`, `ship` e
-`reflect`. O Copilot as carrega quando relevantes; também é
+As seis skills são compartilhadas: `plan`, `implement`, `review`, `ship`,
+`reflect` e `notion-note`. O Copilot as carrega quando relevantes; também é
 possível pedir explicitamente, como “use reflect para propor melhorias com
 base nesta tarefa”. Reflexão não autoriza mudanças globais silenciosas.
+
+`notion-note` salva ou atualiza notas no Second Brain e requer o MCP do Notion.
+As regras de preenchimento ficam no próprio `SKILL.md`.
 
 Para branch/PR, validação, bloqueios e artefatos, consulte o
 [guia compartilhado](fluxo-de-trabalho.md). No T3, uma worktree necessária deve

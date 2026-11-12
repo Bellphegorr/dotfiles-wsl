@@ -1,6 +1,6 @@
 # Fluxo de trabalho com o builder
 
-> Um agente, cinco skills e o contexto do projeto em arquivos.
+> Um agente, seis skills e o contexto do projeto em arquivos.
 > Atualizado em 10/11/2026. Para o porquê desse desenho, veja
 > [orquestracao-de-agentes.md](orquestracao-de-agentes.md).
 >
@@ -156,6 +156,7 @@ você pede ("use a skill plan").
 | `review` | Audita a unidade ou o conjunto final, incluindo commits e alterações locais | Não edita, commita, publica nem transforma aprovação técnica em autorização |
 | `ship` | Faz commits, push da branch e draft PR quando autorizados; verifica evidências e CI | Não força push nem faz merge/release implícitos |
 | `reflect` | Analisa atritos recorrentes e propõe o menor ajuste útil em regras ou ferramentas | Não muda skills/configurações silenciosamente nem cria algo sem necessidade |
+| `notion-note` | Salva ou atualiza notas no Second Brain; requer o MCP do Notion | Regras detalhadas ficam no próprio `SKILL.md` |
 
 > O `review` é feito pelo próprio builder. Para algo importante, rode numa
 > sessão nova ou com outro modelo.

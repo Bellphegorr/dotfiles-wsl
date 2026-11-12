@@ -35,6 +35,8 @@
 | 2026-11-11 | Verificacao da delegacao | git diff --check e comparacao Python dos corpos/frontmatters passaram; leitura do diff sem achados bloqueantes; symlinks reais de ambos os Builders apontam para as fontes atualizadas | Demais permissoes e metadados preservados; indice intacto; recarregar a sessao para adotar as instrucoes. Spawn real nao exercitado; verificacao estatica nao comprova comportamento do modelo |
 | 2026-11-11 | Simplificacao pedida pelo usuario | Removidos a secao Delegation, o direcionamento de execucao direta e o override subagent inteiro do OpenCode; documentacao enxugada | Decisao de delegar fica com o harness, sem politica adicional no Builder; demais permissoes e alteracoes locais preservadas; sem commit/push |
 | 2026-11-11 | Entrega da simplificacao autorizada | Usuario pediu commit e push; review do diff e verificacao estatica anteriores sem bloqueantes | Publicar somente a simplificacao na branch agent/builder-workflow; manter Notion fora do commit e nao abrir PR |
+| 2026-11-11 | Referencias Notion simplificadas | Base 263df078249d02b10800c2ccf1efd413f70be8d7; usuario autorizou remover as referencias dos Builders e manter descricao curta nos guias | Skill preservada sem alteracoes; finalidade e dependencia MCP documentadas, sem duplicar regras; sem novo commit/push |
+| 2026-11-11 | Entrega Notion autorizada | Usuario pediu commit e push da skill e dos guias simplificados; review leu a skill completa e o diff, sem bloqueantes | Publicacao na mesma branch, sem referencias nos Builders e sem criar PR; verificacao MCP funcional nao executada nesta entrega |
 
 ## Validation evidence
 

@@ -207,25 +207,59 @@ cd ~/meu-projeto
 opencode            # escolha o agente "builder"
 ```
 
+O Builder segue a linha do fluxo do Akita: um único agente que carrega a skill
+de cada etapa, lê `AGENTS.md` e a memória do projeto e vai até onde você
+autorizou, sem pedir aprovação a cada passo. O pedido define os limites.
+
+### 1. Correção pequena
+
+```text
+Você:    Corrija o erro de digitação no help do mksession.sh.
+Builder: [sem plano formal: lê, corrige e roda uma checagem simples]
+         [deixa a mudança sem commit e relata o que mudou e o que validou]
+Você:    Commita.
+Builder: [revisa o diff e commita na branch de trabalho, sem push]
+```
+
+### 2. Funcionalidade com pausa no plano
+
+```text
+Você:    Planeje e implemente X, mas me mostre o plano antes.
+Builder: [cria .agents/work/<slug>/plan.md e progress.md e para]
+Você:    Aprovado.
+Builder: [implementa unidade por unidade: valida, revisa, atualiza o progresso]
+         [entrega local, sem commit, porque commit não foi pedido]
+```
+
+A aprovação do plano autoriza a implementação, não commit ou publicação que
+não faziam parte do pedido.
+
+### 3. Do pedido ao PR
+
 ```text
 Você:    Implemente exportação CSV no relatório, com as colunas visíveis.
          Valide, faça commits pequenos e abra um PR.
-Builder: [entende, faz plano curto se necessário e prepara a branch]
-         [implementa, testa, revisa e commita unidades coerentes]
-         [revisa o conjunto, valida, publica a branch e abre draft PR]
-         [confere CI e relata resultado ou bloqueio com evidências]
+Builder: [prepara a branch; planeja só se houver incerteza ou risco]
+         [um commit por unidade validada e revisada]
+         [validação completa no fim, push só da branch e PR em draft]
+         [relata SHA e estado do CI; sem CI, diz que a validação foi local]
 ```
 
-Outros pedidos seguem o mesmo fluxo, com limites diferentes:
+Merge, release e force push nunca vêm junto. Diferente do `--yolo` do Akita,
+no OpenCode comandos como `git commit`, `git push`, `reset --hard` e `rm -r`
+ainda pedem sua confirmação; no Copilot depende do modo de aprovação da sessão.
+
+### 4. Melhorar o próprio fluxo
 
 ```text
-Implemente X e valide, sem commit nem push.
-Use plan para X e pare depois do plano.
-Implemente X com commits locais; pare a cada entrega para eu avaliar.
+Você:    Use reflect: você pediu aprovação demais nessa tarefa.
+Builder: [examina a conversa e o progresso e propõe a menor mudança]
+         [espera você aceitar antes de mexer em skill ou configuração]
 ```
 
-Uma aprovação do plano autoriza sua implementação, não acrescenta commit ou
-publicação se isso não fazia parte do pedido.
+Em todos os casos, ele pergunta só quando falta uma decisão de escopo, design
+ou acesso; num bloqueio, preserva o trabalho e relata o último estado
+validado. O uso de subagentes fica a critério do harness.
 
 ## Melhoria contínua com reflect
 

@@ -74,7 +74,7 @@ não recebem alterações de template automaticamente.
 ## O agente: builder
 
 Agente principal. Roda no modelo padrão do `opencode.jsonc` (DeepSeek V4.1
-Flash). Trabalha diretamente por padrão, sem orquestração implícita. Antes de
+Flash). Antes de
 mexer em qualquer coisa, lê o `AGENTS.md` e a memória disponíveis. Se faltarem,
 consulta as convenções do repositório, sem inventar comandos ou resultados.
 

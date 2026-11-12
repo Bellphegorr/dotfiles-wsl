@@ -2,7 +2,7 @@
 
 - Status: completed - implementation and real-profile links; session reload pending
 - Delivery scope: commit and branch push authorized; user will open the PR
-- Last update: 2026-11-10
+- Last update: 2026-11-11
 - Working branch: agent/builder-workflow
 - Comparison base: cc0ba02656359e42a9f51cb06033f8ec2d0c6a01
 - Initial local changes: Notion additions in both Builders and two guides,
@@ -31,6 +31,10 @@
 | 2026-11-10 | Carregamento nesta sessao | Loader chamado com Reflect retornou Skill Reflect not found e ainda listou as skills antigas | Instalacao no disco confirmada, mas nova sessao Copilot/T3 continua necessaria; nao declarar carga bem-sucedida |
 | 2026-11-10 | Candidato de publicacao | Indice preparado com 12 arquivos do workflow; integracao Notion separada somente no indice, sem alterar a arvore local | Cinco skills completas no candidato publico; skill e referencias Notion anteriores permanecem locais, com hashes preservados |
 | 2026-11-10 | Gate do indice | Snapshot via git checkout-index; cinco skills e corpos dos Builders conferidos; dois instaladores rodados duas vezes em HOME/XDG descartaveis; inicializador, bash -n e git diff --cached --check | Exit 0; links, repeticao e preservacao de Notion pessoal aprovados; nenhuma alteracao no indice ou conteudo local durante o gate |
+| 2026-11-11 | Delegacao opcional solicitada | Base c00bd0176cf434c0fe32d5c50516b91557cef81c; mesma branch de trabalho; alteracoes locais anteriores de Notion preservadas | Removida a exigencia de pedido separado nos dois Builders e trocada somente a permissao subagent de deny para allow no OpenCode; guias alinhados; sem novo commit/push autorizado nesta rodada |
+| 2026-11-11 | Verificacao da delegacao | git diff --check e comparacao Python dos corpos/frontmatters passaram; leitura do diff sem achados bloqueantes; symlinks reais de ambos os Builders apontam para as fontes atualizadas | Demais permissoes e metadados preservados; indice intacto; recarregar a sessao para adotar as instrucoes. Spawn real nao exercitado; verificacao estatica nao comprova comportamento do modelo |
+| 2026-11-11 | Simplificacao pedida pelo usuario | Removidos a secao Delegation, o direcionamento de execucao direta e o override subagent inteiro do OpenCode; documentacao enxugada | Decisao de delegar fica com o harness, sem politica adicional no Builder; demais permissoes e alteracoes locais preservadas; sem commit/push |
+| 2026-11-11 | Entrega da simplificacao autorizada | Usuario pediu commit e push; review do diff e verificacao estatica anteriores sem bloqueantes | Publicar somente a simplificacao na branch agent/builder-workflow; manter Notion fora do commit e nao abrir PR |
 
 ## Validation evidence
 

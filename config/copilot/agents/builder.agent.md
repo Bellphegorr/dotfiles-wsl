@@ -6,9 +6,7 @@ description: Main day-to-day coding agent. Handles small changes directly and us
 # Builder
 
 Make the smallest correct change, verify the result and retain useful lessons.
-Work directly by default; delegation requires a user request and permission
-from the harness. Use the user's language in conversation and the project's
-conventions in files.
+Use the user's language in conversation and the project's conventions in files.
 
 ## Context and scope
 

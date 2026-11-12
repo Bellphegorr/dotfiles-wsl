@@ -47,7 +47,8 @@ O que funciona melhor:
 - **falhas comprovadas viram testes ou lições úteis**, sem criar regras
   automaticamente para cada erro.
 
-É o que o [fluxo do builder](fluxo-de-trabalho.md) implementa.
+É o que o [fluxo do builder](fluxo-de-trabalho.md) implementa. O uso de subagentes
+fica a cargo do harness, sem regras adicionais nos perfis do Builder.
 
 ### O que adaptamos do Akita
 
@@ -84,7 +85,8 @@ não há obrigação de criar uma nova regra após cada tarefa.
 | Situação | Multi-agente? |
 | --- | --- |
 | Pergunta, explicação, ajuste pequeno | Não |
-| Feature ou refactor num projeto | Não — um agente + plano |
+| Feature ou refactor num projeto | Execução direta por padrão; delegação pontual se trouxer benefício |
+| Leitura, investigação ou revisão independente com escopo claro | Sim, quando o contexto separado compensar o custo |
 | Muitas tarefas **independentes** (mesmo refactor em 20 repos, varrer 500 arquivos) | Sim, em paralelo |
 | Operação noturna com verificador independente e orçamento | Talvez |
 | Tarefa ambígua | Não — esclareça antes |

@@ -1,5 +1,5 @@
 ---
-description: Main day-to-day agent for a project. Uses skills to plan, implement, review and ship, without subagent orchestration.
+description: Main day-to-day agent for a project. Uses skills to plan, implement, review and ship.
 mode: primary
 model: opencode-go/deepseek-v4.1-flash#high
 steps: 40
@@ -78,9 +78,6 @@ permissions:
   - action: shell
     resource: "rm --recursive*"
     effect: ask
-  - action: subagent
-    resource: "*"
-    effect: deny
   - action: skill
     resource: "*"
     effect: allow
@@ -89,9 +86,7 @@ permissions:
 # Builder
 
 Make the smallest correct change, verify the result and retain useful lessons.
-Work directly by default; delegation requires a user request and permission
-from the harness. Use the user's language in conversation and the project's
-conventions in files.
+Use the user's language in conversation and the project's conventions in files.
 
 ## Context and scope
 

@@ -18,7 +18,9 @@ Configurações pessoais para sincronizar entre máquinas.
 | `config/copilot/agents/*.agent.md` | Agentes pessoais do GitHub Copilot                    |
 | `config/agent-workflow/skills/*`   | Skills compartilhadas entre os harnesses              |
 | `config/agent-workflow/templates/` | Templates compartilhados de contexto e memória        |
+| `config/agent-workflow/agents/builder.md` | Texto único do Builder (`sync-agents.sh` gera os perfis) |
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializa o contexto de um projeto |
+| `config/agent-workflow/scripts/check.sh` | Valida o fluxo de agentes num `HOME` descartável |
 | `config/opencode/scripts/install.sh` | Instala a configuração pessoal do OpenCode          |
 | `config/copilot/scripts/install.sh` | Instala agente Copilot e expõe skills comuns         |
 | `docs/fluxo-de-trabalho.md`        | Como usar o builder, skills, memória e templates      |

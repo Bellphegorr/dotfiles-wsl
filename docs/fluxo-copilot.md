@@ -85,7 +85,7 @@ formato antigo de cinco arquivos (`request.md`, `prd.md`,
 
 | Caminho | Finalidade |
 | --- | --- |
-| `config/copilot/agents/builder.agent.md` | Agente principal do fluxo novo |
+| `config/copilot/agents/builder.agent.md` | Agente principal do fluxo novo; o corpo é gerado de `config/agent-workflow/agents/builder.md` ([como editar](fluxo-de-trabalho.md#editar-o-builder)) |
 | `config/agent-workflow/skills/` | Skills compartilhadas com o OpenCode |
 | `config/copilot/agents/{planner,agent}.agent.md` | Agentes legados |
 | `config/agent-workflow/templates/` | Templates compartilhados |

@@ -37,6 +37,22 @@ usar os arquivos ou recursos referenciados; valide também invocação,
 permissões, aprovações e uma instalação repetida. Se o formato não for
 compatível, prefira um adaptador ou gerador a manter cópias manuais.
 
+## Editar o Builder
+
+O texto do Builder fica só em `config/agent-workflow/agents/builder.md`. Cada
+perfil (`config/opencode/agents/builder.md` e
+`config/copilot/agents/builder.agent.md`) mantém apenas o próprio frontmatter
+— modelo, permissões, descrição. Depois de editar o texto:
+
+```bash
+config/agent-workflow/scripts/sync-agents.sh   # reescreve o corpo dos perfis
+config/agent-workflow/scripts/check.sh         # valida tudo num HOME descartável
+```
+
+O `check.sh` confere sintaxe dos scripts, perfis sincronizados, frontmatter das
+skills, links locais da documentação, os dois instaladores (duas vezes) e o
+inicializador, sem tocar no seu `HOME`.
+
 ## Instalação
 
 **Uma vez por máquina:**
@@ -242,6 +258,9 @@ não exige rodar reflect depois de cada edição.
 | --- | --- |
 | `config/opencode/opencode.jsonc` | Configuração e modelo padrão |
 | `config/opencode/agents/*.md` | O `builder` e os agentes legados `agent-0.2` e `planner-0.2` |
+| `config/agent-workflow/agents/builder.md` | Texto único do Builder, usado pelos dois harnesses |
+| `config/agent-workflow/scripts/sync-agents.sh` | Copia esse texto para os perfis (`--check` só verifica) |
+| `config/agent-workflow/scripts/check.sh` | Validação completa do fluxo, sem tocar no `HOME` |
 | `config/agent-workflow/skills/*/SKILL.md` | Skills compartilhadas com o Copilot |
 | `config/agent-workflow/templates/` | Modelos compartilhados de `AGENTS.md` e memória |
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializador compartilhado de projeto |

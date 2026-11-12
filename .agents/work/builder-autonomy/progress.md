@@ -37,6 +37,7 @@
 | 2026-11-11 | Entrega da simplificacao autorizada | Usuario pediu commit e push; review do diff e verificacao estatica anteriores sem bloqueantes | Publicar somente a simplificacao na branch agent/builder-workflow; manter Notion fora do commit e nao abrir PR |
 | 2026-11-11 | Referencias Notion simplificadas | Base 263df078249d02b10800c2ccf1efd413f70be8d7; usuario autorizou remover as referencias dos Builders e manter descricao curta nos guias | Skill preservada sem alteracoes; finalidade e dependencia MCP documentadas, sem duplicar regras; sem novo commit/push |
 | 2026-11-11 | Entrega Notion autorizada | Usuario pediu commit e push da skill e dos guias simplificados; review leu a skill completa e o diff, sem bloqueantes | Publicacao na mesma branch, sem referencias nos Builders e sem criar PR; verificacao MCP funcional nao executada nesta entrega |
+| 2026-11-11 | Fonte unica, Builder enxuto e check versionado | Base b53113a23299064c9023044cd918c0c90d032722; check.sh passou e falhou como esperado em 4 mutacoes numa copia; frontmatters identicos ao HEAD; opencode debug agents carrega o corpo novo com 24 asks; copilot skill list mostra Reflect; instalador OpenCode real criou o link reflect | Corpo em config/agent-workflow/agents/builder.md gerado nos perfis por sync-agents.sh; agentes legados mantidos; sem commit/push |
 
 ## Validation evidence
 

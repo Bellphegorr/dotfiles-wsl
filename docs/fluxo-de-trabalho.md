@@ -89,10 +89,12 @@ não recebem alterações de template automaticamente.
 
 ## O agente: builder
 
-Agente principal. Roda no modelo padrão do `opencode.jsonc` (DeepSeek V4.1
-Flash). Antes de
+Agente principal. Roda no modelo padrão do `opencode.jsonc`. Antes de
 mexer em qualquer coisa, lê o `AGENTS.md` e a memória disponíveis. Se faltarem,
 consulta as convenções do repositório, sem inventar comandos ou resultados.
+
+Use um modelo bom para o papel. Nomes, preços e variantes mudam, então a
+escolha fica na configuração, não no guia.
 
 | Pedido | O que ele faz |
 | --- | --- |
@@ -279,12 +281,11 @@ não exige rodar reflect depois de cada edição.
   (`opencode run --agent builder "..."`).
 - **Modelo:** no OpenCode 2, o `model` de um agente principal **não** define o
   modelo da sessão. Quem decide é o `model` global em
-  `config/opencode/opencode.jsonc` (hoje o Flash, que vale também para o Build)
-  ou o modelo escolhido no seletor da TUI/T3. O `model` no `builder.md` fica só
-  como referência. Para trocar, mude o `opencode.jsonc` ou use
-  `opencode run -m provider/modelo#variante`.
-- **Variante:** pelo `opencode.jsonc` o Flash é aplicado, mas o export da sessão
-  não registra o `#high`. Para garantir a variante, use `-m` ou o seletor.
+  `config/opencode/opencode.jsonc` ou o modelo escolhido no seletor da TUI/T3.
+  O `model` no `builder.md` fica só como referência. Para trocar, mude o
+  `opencode.jsonc` ou use `opencode run -m provider/modelo`.
+- **Variante:** a variante escolhida no `opencode.jsonc` pode não aparecer no
+  export da sessão. Para garantir, use `-m` ou o seletor.
 
 ## Onde estão os arquivos
 

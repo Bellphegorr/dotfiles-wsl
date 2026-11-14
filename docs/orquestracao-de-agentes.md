@@ -1,7 +1,7 @@
 # Orquestração de agentes e ferramentas
 
 > O que é orquestração, quando vale a pena e quais ferramentas existem.
-> Atualizado em 10/11/2026. O fluxo que uso no dia a dia está em
+> Atualizado em 14/11/2026. O fluxo que uso no dia a dia está em
 > [fluxo-de-trabalho.md](fluxo-de-trabalho.md).
 
 ## 1. O conceito
@@ -11,22 +11,22 @@ de pedir tudo a um modelo só. O desenho clássico:
 
 ```text
 Você
-└── Orquestrador (modelo forte) — planeja, divide e revisa
-    └── Executor (modelo barato) — implementa, testa e reporta
+└── Orquestrador — planeja, divide e revisa
+    └── Executor — implementa, testa e reporta
 ```
 
-A promessa: contexto limpo para o executor, modelo caro só pensando, modelo
-barato fazendo o trabalho mecânico.
+A promessa: contexto limpo para o executor e o orquestrador cuidando do
+planejamento e da revisão, sem carregar o histórico inteiro.
 
 Trocar de modelo à mão no meio da conversa **não** é orquestração; é
 roteamento manual.
 
-## 2. Na prática: um agente forte ganha
+## 2. Na prática: um agente bom ganha
 
 Os testes do Akita (nov/2026) mostram que, para código do dia a dia, a
 promessa não se paga:
 
-- Opus 4.7 sozinho no OpenCode: **97/100, 18 min, ~$4**.
+- Um modelo bom sozinho no OpenCode: **97/100, 18 min, ~$4**.
 - Planejador + executor: **90–95/100, +7 a +35 min**. Nenhuma combinação bateu
   o solo em qualidade, tempo e custo ao mesmo tempo.
 - Uma cadeia de 10 agentes com 90% de acerto por etapa acerta ~35% no fim.
@@ -39,7 +39,7 @@ dividir só adiciona repasse de contexto, latência e retrabalho. É como
 
 O que funciona melhor:
 
-- **um agente por projeto**, com modelo forte;
+- **um agente por projeto**, com um modelo bom para a tarefa;
 - **skills** (`SKILL.md`) para procedimentos recorrentes;
 - **`AGENTS.md`** com comandos, invariantes e armadilhas;
 - **memória em arquivo** por projeto;
@@ -120,19 +120,34 @@ O que você quer?
 └── Construir um produto de agentes → LangGraph / CrewAI / SDKs
 ```
 
-## 5. Custo dos modelos (OpenCode)
+## 5. Escolha de modelo
 
-USD por 1 milhão de tokens, nov/2026 (confira antes de decidir):
+Use um modelo bom para o papel. Nomes, preços e variantes mudam rápido, então a
+escolha fica na configuração, não neste guia. O critério continua sendo
+evidência: teste, diff revisado e validação real.
 
-| Modelo | Input | Output | Cache read |
-| --- | --- | --- | --- |
-| Kimi K3.1 Pro (Go) | $2,00 | $10,00 | $0,20 |
-| DeepSeek V4 Pro (Go) | $0,66 | $1,98 | $0,022 |
-| DeepSeek V4.1 Flash (Go) — builder | $0,15 | $0,60 | $0,003 |
-| Claude Opus 5.5 (Console) | $4,00 | $20,00 | $0,20 |
+## 6. O que os pilotos no T3 mostraram
 
-As variantes `#low`, `#high` e `#max` controlam o esforço de raciocínio. Use
-`#high` como padrão e `#max` só em tarefa difícil.
+Em nov/2026 rodei três pilotos com o T3 Code:
+
+1. **Research read-only.** Três agentes com escopos independentes, em paralelo,
+   produziram relatórios curtos em ~4 min, sem editar arquivo. Funcionou bem
+   para inventário e auditoria.
+2. **Implementação.** Duas fatias independentes em worktrees separadas, com
+   merge limpo e suíte completa verde. O contrato foi o que garantiu a
+   independência: cada worker só podia editar os próprios arquivos.
+3. **Review independente.** Um revisor separado, vendo só diff e critério de
+   aceite, encontrou um bug de Unicode que os testes dos implementadores não
+   pegavam. O pai corrigiu e adicionou regressão.
+
+Lições:
+
+- delegue só o que é independente;
+- um dono por arquivo/área;
+- brief autossuficiente e relatório curto;
+- verificador independente pega o que o executor não vê;
+- `isolation: "worktree"` do T3 exige um projeto cuja raiz seja o repo; no
+  scratch, use worktree manual ou um projeto dedicado.
 
 ## Referências
 

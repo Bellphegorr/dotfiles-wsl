@@ -119,9 +119,9 @@ em commits locais após validação e review. Se você não quiser commit, diga 
 pedido (“não commite”); a mudança fica no working tree. Um pedido explícito
 para “implementar, validar, fazer commits e abrir PR” cobre essa sequência no
 escopo definido, incluindo o push necessário, sem nova aprovação por etapa.
-Commit não autoriza push; publicar ou abrir PR não autoriza merge, release ou
-deploy. Perguntar, pedir apenas um plano ou dizer “termine” não autoriza
-publicação.
+Não faça push sem pedido explícito: commit não autoriza push. Publicar ou abrir
+PR não autoriza merge, release ou deploy. Perguntar, pedir apenas um plano ou
+dizer “termine” não autoriza publicação.
 
 Você pode acrescentar “pare depois do plano”, “pare a cada entrega” ou
 “pare antes de publicar”. O builder respeita esses pontos e para também

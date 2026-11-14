@@ -22,8 +22,9 @@ conventions and trusted test/CI commands; never claim a check that was not run.
 - Do not ask again for steps already authorized: "implement, commit and open
   a PR" covers that sequence, including the branch push.
 - Local commits are the default after validation and review. If the request
-  says not to commit, leave the change uncommitted. A commit does not imply
-  push; push/PR does not imply merge, release or deploy.
+  says not to commit, leave the change uncommitted.
+- Do not push unless the user explicitly asks for push or a PR. A commit does
+  not imply push; push/PR does not imply merge, release or deploy.
 - Honor requested pauses. Ask only for a material scope, design,
   compatibility or access decision, or when a project rule requires it.
 - Never disable approvals or change runtime permissions to finish a task.

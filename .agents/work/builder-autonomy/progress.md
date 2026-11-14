@@ -1,5 +1,10 @@
 # Progress: autonomia e entrega do Builder
 
+> **Registro histórico (2026-11-10/11).** O estado abaixo é o daquela tarefa.
+> A PR citada como pendente foi aberta depois em draft (2026-11-14), e os
+> agentes antigos foram aposentados. O fluxo vigente está em `docs/`; não trate
+> este progresso como estado atual.
+
 - Status: completed - implementation and real-profile links; session reload pending
 - Delivery scope: commit and branch push authorized; user will open the PR
 - Last update: 2026-11-11

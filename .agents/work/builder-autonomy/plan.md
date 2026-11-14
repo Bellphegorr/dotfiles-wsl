@@ -1,5 +1,10 @@
 # Plan: fluxo enxuto do Builder, adaptado do Akita
 
+> **Registro histórico (2026-11-10/11).** Nomes, contagens e decisões abaixo
+> refletem o estado daquela tarefa. O fluxo vigente está em `docs/` e usa
+> `planning`, `change-review` e sete skills; os agentes antigos foram
+> aposentados. Não trate este plano como instrução corrente.
+
 ## Goal
 Um agente com skills: entender, planejar se necessario, implementar/testar/revisar
 uma unidade por vez, fazer commits autorizados e entregar por PR quando solicitado.

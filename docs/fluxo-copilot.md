@@ -23,9 +23,10 @@ instala o comando comum `agent-workflow-init` (mantém também
 preservados em `~/.local/state/copilot-dotfiles-backup/`. Reinicie o Copilot
 CLI depois da instalação.
 
-Para expor uma skill nova, como `reflect`, rode novamente o instalador:
-os links são individuais. As skills já ligadas apontam para a fonte compartilhada,
-mas uma sessão em andamento pode precisar reiniciar para reler mudanças.
+Para expor uma skill nova, como `reflect`, ou limpar um agente aposentado, rode
+novamente o instalador: os links são individuais e links órfãos são removidos.
+As skills já ligadas apontam para a fonte compartilhada, mas uma sessão em
+andamento pode precisar reiniciar para reler mudanças.
 
 Para conferir e escolher agentes no CLI, use `/agent`. O **Builder** é o único
 agente ativo; os antigos `Planner 0.2` e `Agent 0.2` foram aposentados.

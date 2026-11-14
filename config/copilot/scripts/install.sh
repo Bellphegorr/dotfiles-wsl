@@ -58,6 +58,7 @@ prune_links() {
 for file in "$COPILOT_DIR"/agents/*.agent.md; do
   link "$file" "$AGENT_DIR/$(basename "$file")"
 done
+prune_links "$AGENT_DIR" "$COPILOT_DIR/agents"
 
 for dir in "$WORKFLOW_DIR"/skills/*/; do
   dir="${dir%/}"

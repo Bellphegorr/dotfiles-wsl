@@ -75,6 +75,7 @@ fi
 for file in "$OPENCODE_DIR"/agents/*.md; do
   link "$file" "$CONFIG_DIR/agents/$(basename "$file")"
 done
+prune_links "$CONFIG_DIR/agents" "$OPENCODE_DIR/agents"
 
 for dir in "$WORKFLOW_DIR"/skills/*/; do
   dir="${dir%/}"

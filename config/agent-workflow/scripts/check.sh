@@ -51,9 +51,15 @@ done
 pass 'local links in README and docs'
 
 export HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/.config" XDG_STATE_HOME="$TMP/home/.local/state"
-mkdir -p "$XDG_CONFIG_HOME/opencode/agents" "$HOME/.copilot/skills/custom"
+mkdir -p "$XDG_CONFIG_HOME/opencode/agents" "$XDG_CONFIG_HOME/opencode/skills" \
+  "$HOME/.copilot/agents" "$HOME/.copilot/skills/custom"
 echo 'user builder' > "$XDG_CONFIG_HOME/opencode/agents/builder.md"
 echo 'user skill' > "$HOME/.copilot/skills/custom/keep.txt"
+# Renamed skills and retired agents leave dangling links in existing installs.
+ln -s "$WORKFLOW/skills/plan" "$XDG_CONFIG_HOME/opencode/skills/plan"
+ln -s "$WORKFLOW/skills/review" "$HOME/.copilot/skills/review"
+ln -s "$REPO/config/opencode/agents/planner-0.2.md" "$XDG_CONFIG_HOME/opencode/agents/planner-0.2.md"
+ln -s "$REPO/config/copilot/agents/planner.agent.md" "$HOME/.copilot/agents/planner.agent.md"
 
 for round in 1 2; do
   for harness in opencode copilot; do
@@ -75,9 +81,13 @@ for agent in "$REPO"/config/copilot/agents/*.agent.md; do
   links_to "$HOME/.copilot/agents/$(basename "$agent")" "$agent"
 done
 links_to "$HOME/.local/bin/agent-workflow-init" "$WORKFLOW/scripts/init-agent-workflow.sh"
+for stale in "$XDG_CONFIG_HOME/opencode/skills/plan" "$HOME/.copilot/skills/review" \
+  "$XDG_CONFIG_HOME/opencode/agents/planner-0.2.md" "$HOME/.copilot/agents/planner.agent.md"; do
+  [[ ! -e "$stale" && ! -L "$stale" ]] || fail "stale link not pruned: $stale"
+done
 grep -rqx 'user builder' "$XDG_STATE_HOME/opencode-dotfiles-backup" || fail 'replaced user file not backed up'
 grep -qx 'user skill' "$HOME/.copilot/skills/custom/keep.txt" || fail 'unrelated user skill touched'
-pass 'both installers link everything, back up replaced files and are idempotent'
+pass 'both installers link everything, prune stale links, back up replaced files and are idempotent'
 
 project="$TMP/project"
 mkdir -p "$project/.agents/memory"

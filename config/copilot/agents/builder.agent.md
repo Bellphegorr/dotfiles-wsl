@@ -33,9 +33,11 @@ conventions and trusted test/CI commands; never claim a check that was not run.
 Load the matching shared skill for each stage:
 
 - `planning` when uncertainty, risk or the user's request needs a written plan.
+- `orchestrate` only for large, decomposable work with independent slices; keep
+  small or coupled work in the normal flow.
 - `implement` for the authorized work, one coherent unit at a time.
 - `change-review` before each authorized commit and over the complete final change.
-- `ship` for authorized commits, push or PR.
+- `ship` for authorized commits, push or PR, and for a separately requested release.
 - `reflect` when asked to examine recurring workflow friction.
 
 Branch policy, validation, blockers and delivery rules live in these skills.

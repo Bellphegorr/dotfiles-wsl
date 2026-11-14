@@ -28,11 +28,11 @@ são independentes, mas não justificam a coordenação.
 
 | Papel | Quem | Faz | Não faz |
 | --- | --- | --- | --- |
-| Planejador | builder com a skill `planning`, ou um adapter equivalente | Escreve `plan.md` e `progress.md`; define fatias, donos, aceite e orçamento | Não implementa |
+| Planejador | builder com a skill `planning`, ou um adapter equivalente | Escreve `plan.md` e `progress.md`; define fatias, donos, aceite, orçamento e política de commits | Não implementa |
 | Dispatcher | builder | Valida o plano, cria as threads filhas, distribui tarefas e acompanha bloqueios | Não edita arquivos dos workers enquanto eles rodam |
-| Worker | um subagente por tarefa | Implementa só os arquivos do seu escopo, valida, commita e reporta | Não toca arquivo de outro worker nem o checkout do pai |
+| Worker | um subagente por tarefa | Implementa só os arquivos do seu escopo, valida, commita apenas se o plano autorizar e reporta | Não toca arquivo de outro worker nem o checkout do pai |
 | Verificador | subagente independente, read-only | Lê diff + critério de aceite e reporta achados | Não implementa, não corrige, não vê o raciocínio do implementador |
-| Integrador | builder | Faz merge, roda a suíte completa, resolve integração e atualiza o progresso | Não declara verde sem evidência |
+| Integrador | builder | Integra commits ou diffs, roda a suíte completa, resolve integração e atualiza o progresso | Não declara verde sem evidência |
 | Ship | builder com a skill `ship` | Commit, push e PR somente quando autorizado; confere CI no SHA | Não faz merge, release ou deploy implícito |
 
 ## 3. Artefatos
@@ -41,7 +41,7 @@ O modo pesado parte do contrato atual da skill `planning`:
 
 | Arquivo | Papel |
 | --- | --- |
-| `plan.md` | outcome e boundaries, aceite e evidência, tarefas e decisões |
+| `plan.md` | outcome e boundaries, aceite e evidência, tarefas, decisões, orçamento e política de commits |
 | `progress.md` | status, unidade atual, evidências e changelog |
 | `tasks/<task-id>.md` | brief autossuficiente do worker |
 | `reports/<task-id>.md` | relatório curto do worker |
@@ -67,9 +67,9 @@ dispatcher grava `review.md`; o `ship` devolve o resultado e o dispatcher grava
 
 | Gate | Critério | Evidência |
 | --- | --- | --- |
-| **G1 — Plano aprovado** | escopo, fatias, donos, aceite, orçamento e stop conditions claros | `plan.md` revisado pelo usuário |
-| **G2 — Task aceita** | worker entregou só o escopo, rodou o aceite e commitou | `tasks/<task-id>.md` + `reports/<task-id>.md` + comando de validação |
-| **G3 — Integração verde** | merge limpo e suíte completa passando | saída da suíte + diff acumulado + `progress.md` |
+| **G1 — Plano aprovado** | escopo, fatias, donos, aceite, orçamento, política de commits e stop conditions claros | `plan.md` revisado pelo usuário |
+| **G2 — Task aceita** | worker entregou só o escopo, rodou o aceite e commitou ou devolveu o diff, conforme autorizado | `tasks/<task-id>.md` + `reports/<task-id>.md` + comando de validação + diff ou commit |
+| **G3 — Integração verde** | integração limpa e suíte completa passando | saída da suíte + diff acumulado + `progress.md` |
 | **G4 — Review limpo** | nenhum blocker aberto | `review.md` |
 | **G5 — Ship autorizado** | commit/push/PR permitidos e CI conferido | `ship.md` + status do CI no SHA |
 
@@ -87,7 +87,7 @@ Pedido
             ├── Worker B (worktree B) → tasks/B.md, reports/B.md
             └── Worker C (worktree C) → tasks/C.md, reports/C.md
                 └── G2: cada task aceita
-                    └── Integrador → merge + suíte completa + progress.md
+                    └── Integrador → integra commits ou diffs + suíte completa + progress.md
                         └── G3: integração verde
                             └── Verificador → review.md
                                 └── G4: review limpo
@@ -110,8 +110,10 @@ Regras do worker:
 
 - um dono por arquivo/área;
 - editar somente o próprio escopo;
-- rodar o aceite antes de commitar;
-- commitar no próprio worktree, sem push;
+- rodar o aceite antes de reportar;
+- commitar no próprio worktree apenas quando o plano autorizar; caso contrário,
+  devolver o diff sem commitar;
+- nunca fazer push;
 - relatório curto: o que mudou, evidência, riscos e próximo passo;
 - parar e perguntar se o repositório contradiz o plano.
 
@@ -141,9 +143,10 @@ deles: a estação de planejamento é a skill `planning` e a integração é o b
 Não há um segundo sistema em paralelo nem um contrato de cinco arquivos como
 base.
 
-A aposentadoria inclui remover os perfis, os links em `~/.config/opencode/agents/`
-e `~/.copilot/agents/`, e as referências nos guias. O histórico fica no git; o
-fluxo ativo passa a ser builder + skills.
+Os perfis e as referências nos guias foram removidos. Rode novamente o
+instalador de cada harness já usado: ele remove links órfãos de skills e de
+agentes em `~/.config/opencode/agents/` e `~/.copilot/agents/`. O histórico fica
+no git; o fluxo ativo passa a ser builder + skills.
 
 ## 9. Falhas e stops
 

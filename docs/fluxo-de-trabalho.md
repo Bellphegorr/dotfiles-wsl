@@ -67,9 +67,10 @@ para as mesmas skills em `~/.copilot/skills/`. Os templates e o inicializador
 ficam em `config/agent-workflow/`; ambos os instaladores apontam para essa
 mesma fonte e para o comando `agent-workflow-init`.
 
-Ao adicionar uma skill nova, rode novamente o instalador do harness: os links
-são individuais por skill. Alterar uma skill já ligada não exige reinstalar,
-mas uma sessão em andamento pode precisar ser reiniciada para relê-la.
+Ao adicionar uma skill nova ou aposentar um perfil, rode novamente o instalador
+do harness: os links são individuais e links órfãos de skills/agentes são
+removidos. Alterar uma skill já ligada não exige reinstalar, mas uma sessão em
+andamento pode precisar ser reiniciada para relê-la.
 
 Pode rodar de novo; arquivos diferentes vão para
 `~/.local/state/opencode-dotfiles-backup/` antes de serem trocados. Reinicie o

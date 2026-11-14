@@ -123,12 +123,12 @@ Você pode acrescentar “pare depois do plano”, “pare a cada entrega” ou
 quando precisa de uma decisão material ou encontra um bloqueio real.
 Restrições do projeto continuam valendo.
 
-**Permissões são outra camada.** O perfil do OpenCode mantém `ask` para
-commit/push, rebase, comandos de descarte e `rm` recursivo, inclusive as formas
-com opções globais de Git previstas no perfil. O Copilot segue as permissões
-do próprio CLI e do ambiente. A autorização da tarefa não elimina esses
-prompts. Este fluxo não altera permissões nem recomenda `--auto` nesta
-máquina compartilhada: essa flag pode autoaprovar comandos marcados `ask`.
+**Permissões são outra camada.** O perfil do OpenCode mantém `ask` para push,
+rebase, comandos de descarte e `rm` recursivo, inclusive as formas com opções
+globais de Git previstas no perfil. Commit local roda direto. O Copilot segue
+as permissões do próprio CLI e do ambiente. Este fluxo não recomenda `--auto`
+nesta máquina compartilhada: essa flag pode autoaprovar comandos marcados
+`ask`.
 
 ## Branch, validação e entrega
 

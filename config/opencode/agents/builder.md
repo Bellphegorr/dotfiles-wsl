@@ -10,14 +10,8 @@ permissions:
   - action: shell
     resource: "*"
     effect: allow
-  # Commands that write history, publish or discard work ask for confirmation.
-  # "git -* <cmd>" covers global options, such as `git -C . commit`.
-  - action: shell
-    resource: "git commit*"
-    effect: ask
-  - action: shell
-    resource: "git -* commit*"
-    effect: ask
+  # Commands that publish, rewrite history or discard work ask for confirmation.
+  # "git -* <cmd>" covers global options, such as `git -C . push`.
   - action: shell
     resource: "git push*"
     effect: ask

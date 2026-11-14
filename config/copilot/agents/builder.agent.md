@@ -1,6 +1,6 @@
 ---
 name: Builder
-description: Main day-to-day coding agent. Handles small changes directly and uses the plan, implement, review, and ship skills for larger work.
+description: Main day-to-day coding agent. Handles small changes directly and uses the planning, implement, change-review, and ship skills for larger work.
 ---
 
 <!-- Generated from config/agent-workflow/agents/builder.md by sync-agents.sh; edit that file. -->
@@ -32,9 +32,9 @@ conventions and trusted test/CI commands; never claim a check that was not run.
 
 Load the matching shared skill for each stage:
 
-- `plan` when uncertainty, risk or the user's request needs a written plan.
+- `planning` when uncertainty, risk or the user's request needs a written plan.
 - `implement` for the authorized work, one coherent unit at a time.
-- `review` before each authorized commit and over the complete final change.
+- `change-review` before each authorized commit and over the complete final change.
 - `ship` for authorized commits, push or PR.
 - `reflect` when asked to examine recurring workflow friction.
 

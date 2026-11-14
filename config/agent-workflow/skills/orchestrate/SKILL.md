@@ -1,12 +1,12 @@
 ---
-name: Orchestrate
+name: orchestrate
 description: Use only for large, decomposable or high-risk work with three or more independent slices; coordinates planning, worker briefs, reports, independent review, integration and ship. Do not use for coupled or small tasks.
 ---
 
 # Orchestrate
 
-Coordinate a heavy workflow. This skill does not replace `plan`, `implement`,
-`review` or `ship`; it sequences them and adds worker briefs, reports and gates.
+Coordinate a heavy workflow. This skill does not replace `planning`, `implement`,
+`change-review` or `ship`; it sequences them and adds worker briefs, reports and gates.
 
 ## When to use
 
@@ -31,7 +31,7 @@ single small file, use the builder.
 ## Before starting
 
 1. Read `AGENTS.md`, project memory and existing `plan.md`/`progress.md`.
-2. If there is no plan, use `plan` first.
+2. If there is no plan, use `planning` first.
 3. Confirm the plan has scope, slices, file ownership, acceptance, budget and
    stop conditions.
 4. Treat plan approval as **G1**. Do not dispatch workers before it.
@@ -44,7 +44,7 @@ Use `.agents/work/<slug>/`:
 
 | File | Who writes | Purpose |
 | --- | --- | --- |
-| `plan.md` | `plan` skill | outcome, boundaries, acceptance, tasks, decisions |
+| `plan.md` | `planning` skill | outcome, boundaries, acceptance, tasks, decisions |
 | `progress.md` | plan/integrator | status, current unit, evidence, changelog |
 | `tasks/<id>.md` | dispatcher | self-sufficient brief for one worker |
 | `reports/<id>.md` | dispatcher | short worker report |
@@ -52,7 +52,7 @@ Use `.agents/work/<slug>/`:
 | `ship.md` | dispatcher | integration evidence, SHA, CI and PR |
 
 Do not create `00-request`, `01-prd`, `02-execution`, `03-tasks` or
-`04-progress`. The current `plan` contract already covers those. These extra
+`04-progress`. The current `planning` contract already covers those. These extra
 files exist only while `orchestrate` is active.
 
 ## Worker brief

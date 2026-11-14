@@ -1,5 +1,5 @@
 ---
-name: Reflect
+name: reflect
 description: Use on request to learn from recurring workflow friction and propose the smallest evidence-based improvement to existing instructions, skills or configuration.
 ---
 

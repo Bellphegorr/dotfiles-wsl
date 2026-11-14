@@ -58,10 +58,10 @@ adaptadas ao nosso ambiente, não copiadas com as premissas pessoais dele:
 
 | No nosso fluxo | Referência do Akita |
 | --- | --- |
-| `plan`: resultado e evidência proporcional | `verification-planning` |
+| `planning`: resultado e evidência proporcional | `verification-planning` |
 | `implement`: uma unidade, teste, revisão e commit autorizado | `github-resolution` |
-| `review`: evidência independente e revisão do conjunto final | `pr-audit`, `pr-post-audit` |
-| Critério de clareza dentro de `review`, sem skill extra | `simplify` |
+| `change-review`: evidência independente e revisão do conjunto final | `pr-audit`, `pr-post-audit` |
+| Critério de clareza dentro de `change-review`, sem skill extra | `simplify` |
 | `reflect`: melhorar o processo com evidência e aprovação | `reflect` |
 | `ship`: publicação autorizada e checks no SHA entregue | Limites de `github-resolution` e `release` |
 

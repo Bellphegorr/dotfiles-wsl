@@ -28,7 +28,7 @@ são independentes, mas não justificam a coordenação.
 
 | Papel | Quem | Faz | Não faz |
 | --- | --- | --- | --- |
-| Planejador | builder com a skill `plan`, ou um adapter equivalente | Escreve `plan.md` e `progress.md`; define fatias, donos, aceite e orçamento | Não implementa |
+| Planejador | builder com a skill `planning`, ou um adapter equivalente | Escreve `plan.md` e `progress.md`; define fatias, donos, aceite e orçamento | Não implementa |
 | Dispatcher | builder | Valida o plano, cria as threads filhas, distribui tarefas e acompanha bloqueios | Não edita arquivos dos workers enquanto eles rodam |
 | Worker | um subagente por tarefa | Implementa só os arquivos do seu escopo, valida, commita e reporta | Não toca arquivo de outro worker nem o checkout do pai |
 | Verificador | subagente independente, read-only | Lê diff + critério de aceite e reporta achados | Não implementa, não corrige, não vê o raciocínio do implementador |
@@ -37,7 +37,7 @@ são independentes, mas não justificam a coordenação.
 
 ## 3. Artefatos
 
-O modo pesado parte do contrato atual da skill `plan`:
+O modo pesado parte do contrato atual da skill `planning`:
 
 | Arquivo | Papel |
 | --- | --- |
@@ -50,11 +50,11 @@ O modo pesado parte do contrato atual da skill `plan`:
 
 Não recrie `00-request`, `01-prd`, `02-execution`, `03-tasks` e `04-progress`.
 O `plan.md` e o `progress.md` já cobrem pedido, escopo, estratégia, tarefas e
-progresso. O que o modo pesado acrescenta é o que o `plan` não precisa no dia a
+progresso. O que o modo pesado acrescenta é o que o `planning` não precisa no dia a
 dia: **briefs por worker, relatórios, review independente e ship**.
 
 Fora do `orchestrate`, o builder **não** cria `tasks/`, `reports/`, `review.md`
-nem `ship.md`. `plan`, `implement`, `review` e `ship` continuam leves; esses
+nem `ship.md`. `planning`, `implement`, `change-review` e `ship` continuam leves; esses
 arquivos são artefatos de coordenação do modo pesado, não um novo contrato
 padrão.
 
@@ -137,7 +137,7 @@ pai; Stop na pai para os subagentes.
 ## 8. Agentes antigos
 
 `planner-0.2` e `agent-0.2` foram aposentados. O `orchestrate` não depende
-deles: a estação de planejamento é a skill `plan` e a integração é o builder.
+deles: a estação de planejamento é a skill `planning` e a integração é o builder.
 Não há um segundo sistema em paralelo nem um contrato de cinco arquivos como
 base.
 

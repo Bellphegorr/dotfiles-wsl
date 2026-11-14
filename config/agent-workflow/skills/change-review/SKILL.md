@@ -1,9 +1,9 @@
 ---
-name: Review
+name: change-review
 description: Use for a read-only review of a unit, PR or complete change range, checking acceptance evidence, regressions and interactions across committed and local changes.
 ---
 
-# Review
+# Change review
 
 Audit the actual change and its evidence, not the implementer's confidence.
 During review, do not edit files, stage, commit, push or merge. Return findings

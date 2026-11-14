@@ -22,16 +22,25 @@ pass 'script syntax'
 pass 'agent profiles match config/agent-workflow/agents'
 
 declare -A seen=()
+# Copilot CLI reserves these names for built-in slash commands, so a skill with
+# one of them is never exposed as a command.
+reserved_names=(plan review)
 for skill in "$WORKFLOW"/skills/*/SKILL.md; do
   frontmatter="$(awk 'NR == 1 && $0 != "---" { exit 1 } NR > 1 && /^---$/ { exit } NR > 1' "$skill")" \
     || fail "missing frontmatter: $skill"
-  name="$(sed -n 's/^name:[[:space:]]*//p' <<< "$frontmatter" | tr '[:upper:]' '[:lower:]')"
+  name="$(sed -n 's/^name:[[:space:]]*//p' <<< "$frontmatter")"
+  dir="$(basename "$(dirname "$skill")")"
   grep -Eq '^description:[[:space:]]*[^[:space:]]' <<< "$frontmatter" || fail "missing description: $skill"
   [[ -n "$name" ]] || fail "missing name: $skill"
+  [[ "$name" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || fail "invalid skill name '$name': $skill"
+  [[ "$name" == "$dir" ]] || fail "skill name '$name' does not match directory '$dir': $skill"
+  for reserved in "${reserved_names[@]}"; do
+    [[ "$name" != "$reserved" ]] || fail "reserved skill name '$name': $skill"
+  done
   [[ -z "${seen[$name]:-}" ]] || fail "duplicate skill name '$name': $skill"
   seen[$name]=1
 done
-pass "${#seen[@]} skills with unique name and description"
+pass "${#seen[@]} skills with valid, unique names and descriptions"
 
 for doc in "$REPO"/README.md "$REPO"/docs/*.md; do
   while IFS= read -r target; do

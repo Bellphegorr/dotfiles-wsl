@@ -1,5 +1,5 @@
 ---
-name: Notion Note
+name: notion-note
 description: Use when the user asks to save, capture, or file a note in their Notion Second Brain.
 ---
 

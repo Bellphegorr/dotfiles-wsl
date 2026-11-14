@@ -1,5 +1,5 @@
 ---
-name: Ship
+name: ship
 description: Use for explicitly authorized commits, branch push or draft PR delivery, or a separately requested release, with matching review and validation evidence.
 ---
 
@@ -31,7 +31,7 @@ approval prompts, change permissions or treat a successful review as consent.
 
 ## Commit
 
-- Require focused validation and a read-only `review` of the coherent unit.
+- Require focused validation and a read-only `change-review` of the coherent unit.
   Correct findings in implementation, not by weakening checks.
 - Stage only intended files/hunks and inspect the resulting index. Do not
   include unrelated pre-staged work, secrets, `.env`, local databases or

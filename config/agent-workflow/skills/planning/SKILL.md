@@ -1,9 +1,9 @@
 ---
-name: Plan
+name: planning
 description: Use to write a short plan when scope, uncertainty or risk needs it, or when the user asks for planning, with acceptance criteria and credible evidence.
 ---
 
-# Plan
+# Planning
 
 Make the outcome and its evidence clear before implementation. This stage plans
 the work; it does not edit product files.

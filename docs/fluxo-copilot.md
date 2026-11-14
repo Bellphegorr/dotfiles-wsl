@@ -50,7 +50,7 @@ outro projeto.
 ## Usar o fluxo compartilhado
 
 No CLI, use `/agent` e escolha **Builder**. Para mudanças pequenas e claras,
-peça a implementação diretamente. O Builder usa `plan` quando incerteza, risco
+peça a implementação diretamente. O Builder usa `planning` quando incerteza, risco
 ou seu pedido justificam um plano, não apenas por haver vários arquivos.
 Se você já autorizou a execução do escopo, ele segue depois de planejar;
 se pediu só um plano, ele espera.
@@ -61,10 +61,15 @@ PR não autoriza merge/release. Para avaliar entregas intermediárias, acrescent
 “pare depois do plano” ou “pare a cada entrega”. As permissões do CLI/T3 e as
 restrições do projeto continuam valendo; o Builder não as desativa.
 
-As sete skills são compartilhadas: `plan`, `orchestrate`, `implement`, `review`,
-`ship`, `reflect` e `notion-note`. O Copilot as carrega quando relevantes;
-também é possível pedir explicitamente, como “use reflect para propor melhorias
-com base nesta tarefa”. Reflexão não autoriza mudanças globais silenciosas.
+As sete skills são compartilhadas: `planning`, `orchestrate`, `implement`,
+`change-review`, `ship`, `reflect` e `notion-note`. O Copilot as carrega quando
+relevantes; também é possível pedir explicitamente, como “use reflect para
+propor melhorias com base nesta tarefa”. Reflexão não autoriza mudanças globais
+silenciosas.
+
+Os nomes `planning` e `change-review` evitam os comandos nativos `/plan` e
+`/review` do Copilot CLI. O `name` do frontmatter é sempre lowercase e igual ao
+nome do diretório, como exige a especificação de skills.
 
 `notion-note` salva ou atualiza notas no Second Brain e requer o MCP do Notion.
 As regras de preenchimento ficam no próprio `SKILL.md`.

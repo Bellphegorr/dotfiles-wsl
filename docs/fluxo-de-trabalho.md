@@ -100,9 +100,9 @@ escolha fica na configuração, não no guia.
 | --- | --- |
 | Pergunta ou explicação | Responde direto |
 | Mudança pequena e clara | Usa `implement`, sem plano formal, e revisa o resultado |
-| Incerteza, risco ou pedido de planejamento | Usa `plan`; continua se a execução já estiver autorizada e não houver decisão material pendente |
+| Incerteza, risco ou pedido de planejamento | Usa `planning`; continua se a execução já estiver autorizada e não houver decisão material pendente |
 | Escopo ou plano autorizado | Executa uma unidade coerente por vez, sem novo “ok” por tarefa |
-| Commit autorizado ou candidato final | Usa `review`, incluindo commits já feitos |
+| Commit autorizado ou candidato final | Usa `change-review`, incluindo commits já feitos |
 | Você pede commit, push ou PR | Usa `ship` apenas para as operações autorizadas |
 | Você pede melhoria do processo | Usa `reflect` e propõe o menor ajuste útil |
 
@@ -165,20 +165,20 @@ trabalho incompleto só para apresentar uma branch limpa.
 
 Cada skill é um `SKILL.md` com o passo a passo de uma etapa. O agente vê só o
 nome e a descrição; o conteúdo é lido quando ele decide usar a skill ou quando
-você pede ("use a skill plan").
+você pede ("use a skill planning").
 
 | Skill | O que faz | O que não faz |
 | --- | --- | --- |
-| `plan` | Define resultado, limites, critérios e evidências; cria plano/progresso quando necessários | Não implementa; pedido só de plano termina no plano |
-| `orchestrate` | Coordena trabalho grande com fatias independentes: briefs, workers, relatórios, verificação independente e gates | Não substitui `plan`/`implement`; não use em tarefa acoplada ou pequena |
+| `planning` | Define resultado, limites, critérios e evidências; cria plano/progresso quando necessários | Não implementa; pedido só de plano termina no plano |
+| `orchestrate` | Coordena trabalho grande com fatias independentes: briefs, workers, relatórios, verificação independente e gates | Não substitui `planning`/`implement`; não use em tarefa acoplada ou pequena |
 | `implement` | Executa uma unidade por vez, testa, revisa e usa `ship` para commits autorizados | Não exige plano artificial nem publica fora do pedido |
-| `review` | Audita a unidade ou o conjunto final, incluindo commits e alterações locais | Não edita, commita, publica nem transforma aprovação técnica em autorização |
+| `change-review` | Audita a unidade ou o conjunto final, incluindo commits e alterações locais | Não edita, commita, publica nem transforma aprovação técnica em autorização |
 | `ship` | Faz commits, push da branch e draft PR quando autorizados; verifica evidências e CI | Não força push nem faz merge/release implícitos |
 | `reflect` | Analisa atritos recorrentes e propõe o menor ajuste útil em regras ou ferramentas | Não muda skills/configurações silenciosamente nem cria algo sem necessidade |
 | `notion-note` | Salva ou atualiza notas no Second Brain; requer o MCP do Notion | Regras detalhadas ficam no próprio `SKILL.md` |
 
-> O `review` é feito pelo próprio builder. Para algo importante, rode numa
-> sessão nova ou com outro modelo.
+> A revisão (`change-review`) é feita pelo próprio builder. Para algo
+> importante, rode numa sessão nova ou com outro modelo.
 
 ## O contexto do projeto
 
@@ -201,7 +201,7 @@ regra após cada erro. Você também pode editar. Nunca guarde segredos ou
 histórico de outros projetos nessa memória.
 
 **`.agents/work/<tarefa>/`** — plano e progresso quando o trabalho justifica
-esses artefatos, criados pela skill `plan` e atualizados durante a execução.
+esses artefatos, criados pela skill `planning` e atualizados durante a execução.
 
 ## Um dia de uso
 

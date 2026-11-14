@@ -1,5 +1,5 @@
 ---
-name: Implement
+name: implement
 description: Use to implement a bounded request or approved plan, one coherent unit at a time, with focused validation, review and authorized delivery.
 ---
 
@@ -35,7 +35,7 @@ for every unit. Honor requested pauses and do not expand the outcome.
    abstractions, perform unrelated refactors or leave unfinished placeholders.
 4. Run the narrowest relevant check and adjacent regression checks. Fix in-scope
    failures and rerun affected checks. Do not run every full suite per commit.
-5. Use `review` on the unit before an authorized commit. Review is read-only;
+5. Use `change-review` on the unit before an authorized commit. Review is read-only;
    return to implementation to fix findings, then verify the affected change.
 6. If commits are explicitly authorized for this task, use `ship` to commit the
    validated, reviewed unit. Otherwise keep the change uncommitted. Do not push

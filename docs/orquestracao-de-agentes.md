@@ -94,6 +94,9 @@ não há obrigação de criar uma nova regra após cada tarefa.
 **Regra de bolso:** só divida o que não depende entre si. Se o briefing fica
 maior que a tarefa, não divida.
 
+O desenho operacional para o caso pesado — papéis, artefatos, gates e stops —
+está em [orquestracao-pesada.md](orquestracao-pesada.md).
+
 ## 4. Mapa de ferramentas
 
 Ferramenta é camada. Um cockpit não substitui o harness, e um assistente

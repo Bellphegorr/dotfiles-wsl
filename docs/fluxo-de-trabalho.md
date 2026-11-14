@@ -1,7 +1,7 @@
 # Fluxo de trabalho com o builder
 
-> Um agente, seis skills e o contexto do projeto em arquivos.
-> Atualizado em 10/11/2026. Para o porquê desse desenho, veja
+> Um agente, sete skills e o contexto do projeto em arquivos.
+> Atualizado em 14/11/2026. Para o porquê desse desenho, veja
 > [orquestracao-de-agentes.md](orquestracao-de-agentes.md).
 >
 > As regras e os artefatos compartilhados ficam em `config/agent-workflow/`.
@@ -170,6 +170,7 @@ você pede ("use a skill plan").
 | Skill | O que faz | O que não faz |
 | --- | --- | --- |
 | `plan` | Define resultado, limites, critérios e evidências; cria plano/progresso quando necessários | Não implementa; pedido só de plano termina no plano |
+| `orchestrate` | Coordena trabalho grande com fatias independentes: briefs, workers, relatórios, verificação independente e gates | Não substitui `plan`/`implement`; não use em tarefa acoplada ou pequena |
 | `implement` | Executa uma unidade por vez, testa, revisa e usa `ship` para commits autorizados | Não exige plano artificial nem publica fora do pedido |
 | `review` | Audita a unidade ou o conjunto final, incluindo commits e alterações locais | Não edita, commita, publica nem transforma aprovação técnica em autorização |
 | `ship` | Faz commits, push da branch e draft PR quando autorizados; verifica evidências e CI | Não força push nem faz merge/release implícitos |
@@ -261,7 +262,9 @@ Builder: [examina a conversa e o progresso e propõe a menor mudança]
 
 Em todos os casos, ele pergunta só quando falta uma decisão de escopo, design
 ou acesso; num bloqueio, preserva o trabalho e relata o último estado
-validado. O uso de subagentes fica a critério do harness.
+validado. O uso de subagentes fica a critério do harness. Para trabalho grande
+com fatias independentes, use a skill `orchestrate`; fora disso, o builder
+resolve sozinho.
 
 ## Melhoria contínua com reflect
 
@@ -292,7 +295,7 @@ não exige rodar reflect depois de cada edição.
 | Caminho no dotfiles | O que é |
 | --- | --- |
 | `config/opencode/opencode.jsonc` | Configuração e modelo padrão |
-| `config/opencode/agents/*.md` | O `builder` e os agentes legados `agent-0.2` e `planner-0.2` |
+| `config/opencode/agents/*.md` | O `builder` |
 | `config/agent-workflow/agents/builder.md` | Texto único do Builder, usado pelos dois harnesses |
 | `config/agent-workflow/scripts/sync-agents.sh` | Copia esse texto para os perfis (`--check` só verifica) |
 | `config/agent-workflow/scripts/check.sh` | Validação completa do fluxo, sem tocar no `HOME` |

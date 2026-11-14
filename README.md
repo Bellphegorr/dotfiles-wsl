@@ -14,7 +14,7 @@ Configurações pessoais para sincronizar entre máquinas.
 | `config/tmux/scripts/mksession.sh` | Script para criar sessões tmux                        |
 | `config/mise/config.toml`          | Gerenciador de versões (mise)                         |
 | `config/opencode/opencode.jsonc`   | Configuração do opencode                              |
-| `config/opencode/agents/*.md`      | Agentes do OpenCode (builder e legados)               |
+| `config/opencode/agents/*.md`      | Agente do OpenCode (builder)                          |
 | `config/copilot/agents/*.agent.md` | Agentes pessoais do GitHub Copilot                    |
 | `config/agent-workflow/skills/*`   | Skills compartilhadas entre os harnesses              |
 | `config/agent-workflow/templates/` | Templates compartilhados de contexto e memória        |
@@ -26,6 +26,7 @@ Configurações pessoais para sincronizar entre máquinas.
 | `docs/fluxo-de-trabalho.md`        | Como usar o builder, skills, memória e templates      |
 | `docs/fluxo-copilot.md`            | Como usar o novo fluxo no Copilot                     |
 | `docs/orquestracao-de-agentes.md`  | Orquestração de agentes e mapa de ferramentas         |
+| `docs/orquestracao-pesada.md`      | Fluxo pesado com fatias independentes, workers e gates |
 
 O `~/.gitconfig` não é versionado: nome, email e credenciais são específicos de
 cada máquina.
@@ -59,8 +60,8 @@ Para instalar os agentes pessoais do Copilot no CLI:
 bash ~/dotfiles/config/copilot/scripts/install.sh
 ```
 
-O `Builder` oferece o fluxo novo. `Planner 0.2` e `Agent 0.2` permanecem
-disponíveis como agentes legados. Veja [o guia do Copilot](docs/fluxo-copilot.md).
+O `Builder` é o agente ativo. Os antigos `Planner 0.2` e `Agent 0.2` foram
+aposentados. Veja [o guia do Copilot](docs/fluxo-copilot.md).
 
 ### Editores
 

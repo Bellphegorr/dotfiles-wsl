@@ -27,9 +27,8 @@ Para expor uma skill nova, como `reflect`, rode novamente o instalador:
 os links são individuais. As skills já ligadas apontam para a fonte compartilhada,
 mas uma sessão em andamento pode precisar reiniciar para reler mudanças.
 
-Para conferir e escolher agentes no CLI, use `/agent`. Escolha **Builder** para
-o fluxo novo. Os agentes `Planner 0.2` e `Agent 0.2` continuam disponíveis
-como fluxo legado.
+Para conferir e escolher agentes no CLI, use `/agent`. O **Builder** é o único
+agente ativo; os antigos `Planner 0.2` e `Agent 0.2` foram aposentados.
 
 ## Preparar um projeto
 
@@ -62,10 +61,10 @@ PR não autoriza merge/release. Para avaliar entregas intermediárias, acrescent
 “pare depois do plano” ou “pare a cada entrega”. As permissões do CLI/T3 e as
 restrições do projeto continuam valendo; o Builder não as desativa.
 
-As seis skills são compartilhadas: `plan`, `implement`, `review`, `ship`,
-`reflect` e `notion-note`. O Copilot as carrega quando relevantes; também é
-possível pedir explicitamente, como “use reflect para propor melhorias com
-base nesta tarefa”. Reflexão não autoriza mudanças globais silenciosas.
+As sete skills são compartilhadas: `plan`, `orchestrate`, `implement`, `review`,
+`ship`, `reflect` e `notion-note`. O Copilot as carrega quando relevantes;
+também é possível pedir explicitamente, como “use reflect para propor melhorias
+com base nesta tarefa”. Reflexão não autoriza mudanças globais silenciosas.
 
 `notion-note` salva ou atualiza notas no Second Brain e requer o MCP do Notion.
 As regras de preenchimento ficam no próprio `SKILL.md`.
@@ -74,20 +73,18 @@ Para branch/PR, validação, bloqueios e artefatos, consulte o
 [guia compartilhado](fluxo-de-trabalho.md). No T3, uma worktree necessária deve
 ser vinculada à thread pelas ferramentas nativas; não é uma sandbox de execução.
 
-## Agentes legados
+## Agentes antigos
 
-`Planner 0.2` e `Agent 0.2` continuam versionados e instaláveis. Eles usam o
-formato antigo de cinco arquivos (`request.md`, `prd.md`,
-`execution-plan.md`, `tasks.md` e `progress.md`). Para o fluxo novo, escolha
-**Builder** e não misture os dois formatos na mesma tarefa.
+`Planner 0.2` e `Agent 0.2` foram aposentados. O formato antigo de cinco
+arquivos não é mais usado; o fluxo ativo é o Builder com `plan.md` e
+`progress.md`. O histórico fica no git.
 
 ## Arquivos
 
 | Caminho | Finalidade |
 | --- | --- |
-| `config/copilot/agents/builder.agent.md` | Agente principal do fluxo novo; o corpo é gerado de `config/agent-workflow/agents/builder.md` ([como editar](fluxo-de-trabalho.md#editar-o-builder)) |
+| `config/copilot/agents/builder.agent.md` | Agente principal; o corpo é gerado de `config/agent-workflow/agents/builder.md` ([como editar](fluxo-de-trabalho.md#editar-o-builder)) |
 | `config/agent-workflow/skills/` | Skills compartilhadas com o OpenCode |
-| `config/copilot/agents/{planner,agent}.agent.md` | Agentes legados |
 | `config/agent-workflow/templates/` | Templates compartilhados |
 | `config/copilot/scripts/install.sh` | Instala o agente Copilot e expõe as skills compartilhadas |
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Prepara o contexto de um projeto |

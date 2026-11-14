@@ -1,17 +1,12 @@
 ---
 name: ship
-description: Use for local commits after validation and review, authorized branch push or draft PR delivery, or a separately requested release.
+description: Use for commits, branch push, draft PR delivery or release requested by the task.
 ---
 
 # Ship
 
-Deliver only the operations the user authorized for this task. An implementation
-request normally includes local commits after validation and review; if the user
-asked to keep changes uncommitted, stop before committing. An explicit request
-to implement, commit and open a PR covers the necessary branch push without
-another approval per step. A commit does not imply push; a push request does not
-imply a PR, and a PR does not imply merge, release or deploy. If the requested
-operation lacks authorization, stop before that operation.
+Deliver the commits, branch push, PR or release that the task asks for. Confirm
+the repository state and the requested scope before each operation.
 
 Project restrictions and harness permissions still apply. Do not disable
 approval prompts, change permissions or treat a successful review as consent.
@@ -62,13 +57,12 @@ approval prompts, change permissions or treat a successful review as consent.
 
 ## Push
 
-- Require explicit push authorization or an explicit PR-delivery request.
 - Confirm the remote repository, source commit and destination refspec before
   pushing. A feature branch can still target `HEAD:main`; the current branch
   name alone is not protection.
-- Push an explicit authorized working-branch ref, never a protected/mainline
-  destination, `--all`, `--mirror` or an implicit set of tags. Do not trust
-  configured push defaults without checking the actual destination.
+- Push an explicit working-branch ref, never a protected/mainline destination,
+  `--all`, `--mirror` or an implicit set of tags. Do not trust configured push
+  defaults without checking the actual destination.
 - Never force push, including `--force-with-lease`, in this workflow. On rejection,
   preserve both sides, report the error and do not rewrite shared history.
 - Procedural checks are not a security boundary; server-side protections and
@@ -76,8 +70,8 @@ approval prompts, change permissions or treat a successful review as consent.
 
 ## Pull request
 
-- Open a PR only when requested. Reuse an existing PR for this branch instead
-  of creating duplicates; otherwise create a **draft** by default.
+- Open or update the PR requested by the task. Reuse an existing PR for this
+  branch instead of creating duplicates; otherwise create a **draft** by default.
 - Confirm the target repository/base and source branch. Respect the project's
   PR template, with a summary, acceptance evidence, validation and risks/gaps.
 - In T3 Code, link created or updated PRs with its native linking tools. Use
@@ -86,14 +80,13 @@ approval prompts, change permissions or treat a successful review as consent.
   Pending, skipped, missing or cancelled jobs are not passing. If CI is absent,
   state that only local validation is available; if inspection fails, report it.
 - If CI exposes an in-scope failure, fix it, validate/review the correction and
-  publish a normal new commit only within the existing authorization. Refresh
-  evidence for the new head; do not call the old SHA's green result current.
-- Do not close an issue as completed merely because a draft PR exists.
-  Review approval and green CI do not authorize merge.
+  publish a normal new commit. Refresh evidence for the new head; do not call
+  the old SHA's green result current.
+- Do not close an issue as completed merely because a draft PR exists. Review
+  approval and green CI do not themselves request a merge.
 
 ## Release
 
-Release is a separate explicit request, never the tail of ordinary PR delivery.
 Follow the project's versioning/changelog and release strategy; resolve a
 version mismatch with the user rather than inventing a bump. Require the
 release candidate's checks to pass on its exact SHA, use annotated tags and

@@ -93,9 +93,8 @@ VERDICT
 ```
 
 If there are no blockers, say so and name residual risks. Do not invent
-findings or reopen unchanged, resolved concerns without new evidence.
-An approved review is not authorization to publish or merge. Do not rewrite
-the plan during review; explain deviations and return them to the caller.
+findings or reopen unchanged, resolved concerns without new evidence. Do not
+rewrite the plan during review; explain deviations and return them to the caller.
 
 Adapted from the evidence and final-tree checks in
 [pr-audit](https://github.com/akitaonrails/my-skills/tree/master/pr-audit) and

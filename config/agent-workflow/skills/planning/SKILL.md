@@ -76,10 +76,7 @@ them when relevant to the handoff.
 - If the user already authorized implementation of this bounded scope, present
   the short plan and continue with `implement` without another approval round,
   unless a material decision remains or the user requested a pause.
-- If implementation was not authorized, wait for approval. Authorization of
-  implementation includes local commits after validation and review, but not
-  push, PR, merge or release. If the user asks to keep changes uncommitted,
-  respect that.
+- If implementation was not authorized, wait for approval.
 - Adjust implementation details within the agreed outcome as evidence changes;
   update the plan. Ask before expanding scope or changing a material contract.
 

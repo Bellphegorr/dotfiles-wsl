@@ -33,7 +33,7 @@ single small file, use the builder.
 1. Read `AGENTS.md`, project memory and existing `plan.md`/`progress.md`.
 2. If there is no plan, use `planning` first.
 3. Confirm the plan has scope, slices, file ownership, acceptance, budget and
-   stop conditions. If the user asked for a different commit behavior, record it.
+   stop conditions.
 4. Treat plan approval as **G1**. Do not dispatch workers before it.
 5. If a slice has no command-validatable acceptance, refine it or keep it in the
    builder. Do not delegate a vague brief.
@@ -44,7 +44,7 @@ Use `.agents/work/<slug>/`:
 
 | File | Who writes | Purpose |
 | --- | --- | --- |
-| `plan.md` | `planning` skill | outcome, boundaries, acceptance, tasks, decisions, budget and any requested commit behavior |
+| `plan.md` | `planning` skill | outcome, boundaries, acceptance, tasks, decisions and budget |
 | `progress.md` | plan/integrator | status, current unit, evidence, changelog |
 | `tasks/<id>.md` | dispatcher | self-sufficient brief for one worker |
 | `reports/<id>.md` | dispatcher | short worker report |
@@ -71,9 +71,6 @@ Rules:
 - one owner per file or area;
 - the worker edits only its scope;
 - run the acceptance command before reporting;
-- commit in its own worktree by default; if the user asked to keep the work
-  uncommitted, return the diff instead;
-- never push;
 - return a short report: what changed, evidence, risks and next step;
 - stop and ask if the repository contradicts the plan.
 
@@ -92,16 +89,13 @@ command, it is not ready to delegate.
      `delegate_task` when you need approvals and a result tied to the parent.
    - The child never receives broader permissions than the parent. Approvals go
      up to the parent; stopping the parent stops its subagents.
-3. **Worker runs.** The worker implements only its scope, runs acceptance,
-   commits in its worktree by default, and returns a short report with the
-   commit. It never pushes. If the request asked for no commits, it returns the
-   diff instead.
-4. **G2 — each task accepted.** Check the report, the acceptance output and the
-   commit or diff. Record `reports/<id>.md`. A worker that edited outside its
-   scope fails the gate.
-5. **Integrate.** Merge the accepted commits, or apply the returned diffs when
-   the user asked for no commits; run the full suite, resolve integration
-   issues and update `progress.md`.
+3. **Worker runs.** The worker implements only its scope, runs acceptance and
+   returns a short report with the result.
+4. **G2 — each task accepted.** Check the report and the acceptance output.
+   Record `reports/<id>.md`. A worker that edited outside its scope fails the
+   gate.
+5. **Integrate.** Integrate the accepted work, run the full suite, resolve
+   integration issues and update `progress.md`.
 6. **G3 — integration green.** Do not advance with a red suite or unresolved
    conflict.
 7. **Independent review.** Give a read-only verifier only the diff and the
@@ -110,21 +104,20 @@ command, it is not ready to delegate.
 8. **G4 — review clean.** No open blocker. Every acceptance criterion in
    `plan.md` must map to evidence; a missing required automated check is a
    blocker, not a nit.
-9. **Ship.** Use `ship` only for the operations the user authorized. Record
-   `ship.md` with SHA, validation evidence and CI status. Check CI at the exact
-   pushed SHA.
-10. **G5 — authorized and checked.** Pending, skipped or cancelled checks are
-    not passing.
+9. **Ship.** Use `ship` for the delivery the request includes. Record `ship.md`
+   with validation evidence and CI status. Check CI at the exact pushed SHA.
+10. **G5 — delivery checked.** Pending, skipped or cancelled checks are not
+    passing.
 
 ## Gates
 
 | Gate | Criterion | Evidence |
 | --- | --- | --- |
 | G1 | plan approved | `plan.md` |
-| G2 | each task accepted | `tasks/<id>.md`, `reports/<id>.md`, acceptance command, commit or diff |
+| G2 | each task accepted | `tasks/<id>.md`, `reports/<id>.md`, acceptance command and result |
 | G3 | integration green | full suite, diff, `progress.md` |
 | G4 | every plan criterion mapped to evidence; no open blocker | `review.md` |
-| G5 | publication authorized | `ship.md`, CI status at SHA |
+| G5 | delivery evidence | `ship.md`, CI status at SHA |
 
 ## Failure and stops
 
@@ -142,5 +135,5 @@ command, it is not ready to delegate.
 
 ## Output
 
-Report the artifacts, branches/commits, gate status, validation evidence and
-remaining risks. Do not claim a gate passed without its command, output or diff.
+Report the artifacts, gate status, validation evidence and remaining risks.
+Do not claim a gate passed without its command, output or diff.

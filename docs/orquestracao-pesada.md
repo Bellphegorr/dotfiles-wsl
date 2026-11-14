@@ -30,10 +30,10 @@ são independentes, mas não justificam a coordenação.
 | --- | --- | --- | --- |
 | Planejador | builder com a skill `planning`, ou um adapter equivalente | Escreve `plan.md` e `progress.md`; define fatias, donos, aceite e orçamento | Não implementa |
 | Dispatcher | builder | Valida o plano, cria as threads filhas, distribui tarefas e acompanha bloqueios | Não edita arquivos dos workers enquanto eles rodam |
-| Worker | um subagente por tarefa | Implementa só os arquivos do seu escopo, valida, commita localmente e reporta | Não toca arquivo de outro worker nem o checkout do pai |
+| Worker | um subagente por tarefa | Implementa só os arquivos do seu escopo, valida e reporta | Não toca arquivo de outro worker nem o checkout do pai |
 | Verificador | subagente independente, read-only | Lê diff + critério de aceite e reporta achados | Não implementa, não corrige, não vê o raciocínio do implementador |
 | Integrador | builder | Integra commits ou diffs, roda a suíte completa, resolve integração e atualiza o progresso | Não declara verde sem evidência |
-| Ship | builder com a skill `ship` | Commits locais; push e PR quando autorizado; confere CI no SHA | Não faz merge, release ou deploy implícito |
+| Ship | builder com a skill `ship` | Executa commits, push e PR conforme o pedido; confere CI no SHA | Não faz merge, release ou deploy implícito |
 
 ## 3. Artefatos
 
@@ -68,10 +68,10 @@ dispatcher grava `review.md`; o `ship` devolve o resultado e o dispatcher grava
 | Gate | Critério | Evidência |
 | --- | --- | --- |
 | **G1 — Plano aprovado** | escopo, fatias, donos, aceite, orçamento e stop conditions claros | `plan.md` revisado pelo usuário |
-| **G2 — Task aceita** | worker entregou só o escopo, rodou o aceite e commitou localmente, salvo pedido explícito para não commitar | `tasks/<task-id>.md` + `reports/<task-id>.md` + comando de validação + commit ou diff |
+| **G2 — Task aceita** | worker entregou só o escopo, rodou o aceite e reportou o resultado | `tasks/<task-id>.md` + `reports/<task-id>.md` + comando de validação e resultado |
 | **G3 — Integração verde** | integração limpa e suíte completa passando | saída da suíte + diff acumulado + `progress.md` |
 | **G4 — Review limpo** | nenhum blocker aberto | `review.md` |
-| **G5 — Ship autorizado** | push/PR permitidos e CI conferido | `ship.md` + status do CI no SHA |
+| **G5 — Entrega conferida** | entrega conforme o pedido e CI conferido | `ship.md` + status do CI no SHA |
 
 Nada avança porque o agente disse “pronto”. Cada gate tem comando, saída ou
 diff.
@@ -87,7 +87,7 @@ Pedido
             ├── Worker B (worktree B) → tasks/B.md, reports/B.md
             └── Worker C (worktree C) → tasks/C.md, reports/C.md
                 └── G2: cada task aceita
-                    └── Integrador → integra commits ou diffs + suíte completa + progress.md
+                    └── Integrador → integra o trabalho aceito + suíte completa + progress.md
                         └── G3: integração verde
                             └── Verificador → review.md
                                 └── G4: review limpo
@@ -111,9 +111,6 @@ Regras do worker:
 - um dono por arquivo/área;
 - editar somente o próprio escopo;
 - rodar o aceite antes de reportar;
-- commitar no próprio worktree por padrão; se o pedido mandar não commitar,
-  devolver o diff;
-- nunca fazer push;
 - relatório curto: o que mudou, evidência, riscos e próximo passo;
 - parar e perguntar se o repositório contradiz o plano.
 

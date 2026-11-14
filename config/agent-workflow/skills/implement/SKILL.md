@@ -35,12 +35,10 @@ for every unit. Honor requested pauses and do not expand the outcome.
    abstractions, perform unrelated refactors or leave unfinished placeholders.
 4. Run the narrowest relevant check and adjacent regression checks. Fix in-scope
    failures and rerun affected checks. Do not run every full suite per commit.
-5. Use `change-review` on the unit before committing. Review is read-only;
+5. Use `change-review` on the unit before delivery. Review is read-only;
    return to implementation to fix findings, then verify the affected change.
-6. After validation and review, commit the coherent unit locally with `ship` by
-   default. If the user asked to keep changes uncommitted, leave them in the
-   working tree. Do not push intermediate work unless publication was explicitly
-   requested.
+6. Use `ship` for the commits or publication the request includes; otherwise
+   continue with the remaining authorized units.
 7. Update existing progress with the unit, command/result, revision or working
    tree state, date and remaining work. At a requested delivery pause, report
    and wait; otherwise continue the remaining authorized units.
@@ -69,9 +67,8 @@ to weaken the check, skip the issue or publish a broken candidate.
 - Run the applicable full project gate after the last material change. Reuse
   evidence only when its relevant inputs and environment remain unchanged,
   identifying the earlier run rather than claiming an unrun check passed.
-- If publication was requested, use `ship` after the final checks. Commit-only
-  and local implementation requests remain local; merge/release/deploy require
-  separate authorization.
+- When the request includes commits or publication, use `ship` after the final
+  checks.
 - Record durable facts in project memory when useful. Update existing progress
   and handoff for a pause/blocker; do not create extra paperwork for every edit.
 - Report the outcome, evidence and limitations. Missing required verification

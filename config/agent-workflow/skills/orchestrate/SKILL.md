@@ -23,6 +23,11 @@ Do not use for a question, small adjustment, coupled feature, ambiguous task or
 when the brief is bigger than the task. In those cases, stop and use the normal
 builder flow. Do not create heavy artifacts for a coupled task.
 
+The slices must also be substantial enough that coordination pays. Three tiny
+one-file changes are independent, but they are not a heavy workflow. Rule of
+thumb: if the whole job fits in one short builder session, or each slice is a
+single small file, use the builder.
+
 ## Before starting
 
 1. Read `AGENTS.md`, project memory and existing `plan.md`/`progress.md`.
@@ -97,7 +102,9 @@ command, it is not ready to delegate.
 7. **Independent review.** Give a read-only verifier only the diff and the
    acceptance criteria, not the implementer's reasoning. Record `review.md`.
    Fix blockers and request a new review.
-8. **G4 — review clean.** No open blocker.
+8. **G4 — review clean.** No open blocker. Every acceptance criterion in
+   `plan.md` must map to evidence; a missing required automated check is a
+   blocker, not a nit.
 9. **Ship.** Use `ship` only for the operations the user authorized. Record
    `ship.md` with SHA, validation evidence and CI status. Check CI at the exact
    pushed SHA.
@@ -111,7 +118,7 @@ command, it is not ready to delegate.
 | G1 | plan approved | `plan.md` |
 | G2 | each task accepted | `tasks/<id>.md`, `reports/<id>.md`, acceptance command |
 | G3 | integration green | full suite, diff, `progress.md` |
-| G4 | review clean | `review.md` |
+| G4 | every plan criterion mapped to evidence; no open blocker | `review.md` |
 | G5 | ship authorized | `ship.md`, CI status at SHA |
 
 ## Failure and stops
@@ -123,6 +130,7 @@ command, it is not ready to delegate.
 | Worker failed twice | Stop, reassess, revise the plan |
 | Integration red | Do not review or ship; fix first |
 | Review has a blocker | Fix and re-review; do not ship |
+| Review approved with a plan criterion unmapped | Treat as blocker; fix and re-review |
 | Budget exceeded | Stop and report the validated state |
 | Worker asks and blocks | Answer or cancel; do not leave it hanging |
 | Scope grew | Stop, update the artifacts and ask for approval |

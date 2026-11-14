@@ -9,8 +9,8 @@
 
 Use apenas quando pelo menos uma condição for verdadeira:
 
-- **3 ou mais fatias independentes**, cada uma com aceite e comando de
-  validação;
+- **3 ou mais fatias independentes e substanciais**, cada uma com aceite e
+  comando de validação;
 - mudança em múltiplos repos ou packages;
 - auditoria ou migração grande;
 - mudança de alto risco que exige verificador independente;
@@ -19,6 +19,10 @@ Use apenas quando pelo menos uma condição for verdadeira:
 Não use para pergunta, ajuste pequeno, feature acoplada, tarefa ambígua ou
 quando o brief fica maior que a tarefa. Nesses casos, o builder sozinho é mais
 rápido e mais barato.
+
+**Regra de bolso:** se o trabalho total cabe em uma sessão curta do builder, ou
+cada fatia é um arquivo pequeno, não use o modo pesado. Três comandos minúsculos
+são independentes, mas não justificam a coordenação.
 
 ## 2. Papéis
 
@@ -174,6 +178,21 @@ Critério de decisão:
 - se `orchestrate` perder na tarefa independente, o modo pesado ainda não vale;
 - o esperado é que cada workflow ganhe no seu terreno.
 
+### Resultado da validação (14/11/2026)
+
+| Cenário | Workflow | Tempo | Testes | Artefatos | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| Acoplado | builder solo | 34s | 11/11 | nenhum | rename completo em 7 arquivos |
+| Acoplado | `orchestrate` | 38s | 11/11 | nenhum | recusou e fez downgrade; diff idêntico ao solo |
+| Independente | builder solo | 47s | 31/31 | nenhum | 6 arquivos novos |
+| Independente | `orchestrate` | 237s | 32/32 | `plan`, `progress`, `tasks`, `reports`, `review`, `ship` | 3 workers + 1 revisor; review aprovou com nit |
+
+Leitura: o limite de decisão funcionou. O modo pesado foi **5x mais lento** em
+três comandos minúsculos; por isso o critério ganhou um piso de tamanho/risco.
+O review apontou que faltava o teste automatizado de descoberta previsto no
+plano, mas classificou como nit; G4 agora trata critério do plano sem evidência
+como blocker.
+
 ## 11. Primeiro uso real
 
 Escolha uma tarefa de baixo risco com três fatias claras:
@@ -188,8 +207,7 @@ vira o fluxo padrão.
 
 ## 12. Decisões em aberto
 
-- rodar os dois cenários de validação (acoplado e independente) e comparar com
-  o builder solo;
+- calibrar o piso de tamanho do `orchestrate` com uma tarefa maior;
 - confirmar `.agents/work/<slug>/` como raiz dos briefs e relatórios;
 - criar um projeto T3 dedicado para testar `isolation: "worktree"` nativo;
 - definir orçamento e stop conditions por tipo de tarefa.

@@ -59,8 +59,9 @@
   for implementation, commits and PR covers that sequence without approval per
   step, subject to project rules and harness permissions.
 - Questions and planning-only requests do not authorize implementation.
-- Do not commit or publish unless authorized. Commit-only stays local; push/PR
-  does not authorize merge, release or deploy.
+- Commit locally after validation and review unless the user asks to keep
+  changes uncommitted. Push/PR require authorization and do not authorize
+  merge, release or deploy.
 - Work on a non-protected branch; never commit/push directly to the default or
   protected branches, force push or disable permissions to finish a task.
 - Do not rewrite history or discard work without a separate explicit request.

@@ -103,8 +103,8 @@ escolha fica na configuração, não no guia.
 | Mudança pequena e clara | Usa `implement`, sem plano formal, e revisa o resultado |
 | Incerteza, risco ou pedido de planejamento | Usa `planning`; continua se a execução já estiver autorizada e não houver decisão material pendente |
 | Escopo ou plano autorizado | Executa uma unidade coerente por vez, sem novo “ok” por tarefa |
-| Commit autorizado ou candidato final | Usa `change-review`, incluindo commits já feitos |
-| Você pede commit, push ou PR | Usa `ship` apenas para as operações autorizadas |
+| Commit ou candidato final | Usa `change-review`, incluindo commits já feitos |
+| Você pede push, PR ou release | Usa `ship` para publicar apenas o autorizado; commits locais já são o padrão |
 | Você pede melhoria do processo | Usa `reflect` e propõe o menor ajuste útil |
 
 Tocar vários arquivos não obriga a criar plano. Regras fixas: não amplia o
@@ -114,12 +114,14 @@ automática ao humano nem justificam tentativas sem progresso.
 
 ## Autorização e pausas
 
-Não há modos de execução para configurar. Um pedido explícito para
-“implementar, validar, fazer commits e abrir PR” cobre essa sequência no
+Não há modos de execução para configurar. Por padrão, a implementação termina
+em commits locais após validação e review. Se você não quiser commit, diga no
+pedido (“não commite”); a mudança fica no working tree. Um pedido explícito
+para “implementar, validar, fazer commits e abrir PR” cobre essa sequência no
 escopo definido, incluindo o push necessário, sem nova aprovação por etapa.
-“Faça commit” não autoriza push; publicar ou abrir PR não autoriza merge,
-release ou deploy. Perguntar, pedir apenas um plano ou dizer “termine” não
-autoriza publicação.
+Commit não autoriza push; publicar ou abrir PR não autoriza merge, release ou
+deploy. Perguntar, pedir apenas um plano ou dizer “termine” não autoriza
+publicação.
 
 Você pode acrescentar “pare depois do plano”, “pare a cada entrega” ou
 “pare antes de publicar”. O builder respeita esses pontos e para também
@@ -142,7 +144,7 @@ precisar de worktree no T3 Code, usa a ferramenta nativa para vinculá-la à
 thread; uma worktree criada no shell não faz essa vinculação. Branch e
 worktree não isolam execução nem credenciais.
 
-Cada unidade recebe validação focada e review antes de um commit autorizado.
+Cada unidade recebe validação focada e review antes do commit local.
 O conjunto final recebe revisão acumulada e as verificações completas
 aplicáveis, após a última mudança material, sem repetir toda a suíte a cada
 commit. O review considera commits, staged/unstaged e arquivos novos;
@@ -172,9 +174,9 @@ você pede ("use a skill planning").
 | --- | --- | --- |
 | `planning` | Define resultado, limites, critérios e evidências; cria plano/progresso quando necessários | Não implementa; pedido só de plano termina no plano |
 | `orchestrate` | Coordena trabalho grande com fatias independentes: briefs, workers, relatórios, verificação independente e gates | Não substitui `planning`/`implement`; não use em tarefa acoplada ou pequena |
-| `implement` | Executa uma unidade por vez, testa, revisa e usa `ship` para commits autorizados | Não exige plano artificial nem publica fora do pedido |
+| `implement` | Executa uma unidade por vez, testa, revisa e commita localmente | Não exige plano artificial nem publica fora do pedido |
 | `change-review` | Audita a unidade ou o conjunto final, incluindo commits e alterações locais | Não edita, commita, publica nem transforma aprovação técnica em autorização |
-| `ship` | Faz commits, push da branch e draft PR quando autorizados; verifica evidências e CI | Não força push nem faz merge/release implícitos |
+| `ship` | Faz commits locais por padrão; push da branch e draft PR quando autorizados; verifica evidências e CI | Não força push nem faz merge/release implícitos |
 | `reflect` | Analisa atritos recorrentes e propõe o menor ajuste útil em regras ou ferramentas | Não muda skills/configurações silenciosamente nem cria algo sem necessidade |
 | `notion-note` | Salva ou atualiza notas no Second Brain; requer o MCP do Notion | Regras detalhadas ficam no próprio `SKILL.md` |
 
@@ -220,10 +222,11 @@ autorizou, sem pedir aprovação a cada passo. O pedido define os limites.
 ```text
 Você:    Corrija o erro de digitação no help do mksession.sh.
 Builder: [sem plano formal: lê, corrige e roda uma checagem simples]
-         [deixa a mudança sem commit e relata o que mudou e o que validou]
-Você:    Commita.
-Builder: [revisa o diff e commita na branch de trabalho, sem push]
+         [revisa o diff e commita na branch de trabalho, sem push]
+         [relata o hash e o que validou]
 ```
+
+Se preferir a mudança só no working tree, peça “não commite”.
 
 ### 2. Funcionalidade com pausa no plano
 
@@ -231,12 +234,13 @@ Builder: [revisa o diff e commita na branch de trabalho, sem push]
 Você:    Planeje e implemente X, mas me mostre o plano antes.
 Builder: [cria .agents/work/<slug>/plan.md e progress.md e para]
 Você:    Aprovado.
-Builder: [implementa unidade por unidade: valida, revisa, atualiza o progresso]
-         [entrega local, sem commit, porque commit não foi pedido]
+Builder: [implementa unidade por unidade: valida, revisa, commita localmente,
+          atualiza o progresso]
+         [não faz push]
 ```
 
-A aprovação do plano autoriza a implementação, não commit ou publicação que
-não faziam parte do pedido.
+A aprovação do plano autoriza a implementação e os commits locais; push e
+publicação continuam dependendo do pedido.
 
 ### 3. Do pedido ao PR
 

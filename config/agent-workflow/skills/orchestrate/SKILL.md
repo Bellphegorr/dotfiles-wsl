@@ -32,8 +32,8 @@ single small file, use the builder.
 
 1. Read `AGENTS.md`, project memory and existing `plan.md`/`progress.md`.
 2. If there is no plan, use `planning` first.
-3. Confirm the plan has scope, slices, file ownership, acceptance, budget,
-   stop conditions and whether workers may commit.
+3. Confirm the plan has scope, slices, file ownership, acceptance, budget and
+   stop conditions. If the user asked for a different commit behavior, record it.
 4. Treat plan approval as **G1**. Do not dispatch workers before it.
 5. If a slice has no command-validatable acceptance, refine it or keep it in the
    builder. Do not delegate a vague brief.
@@ -44,7 +44,7 @@ Use `.agents/work/<slug>/`:
 
 | File | Who writes | Purpose |
 | --- | --- | --- |
-| `plan.md` | `planning` skill | outcome, boundaries, acceptance, tasks, decisions, budget and commit policy |
+| `plan.md` | `planning` skill | outcome, boundaries, acceptance, tasks, decisions, budget and any requested commit behavior |
 | `progress.md` | plan/integrator | status, current unit, evidence, changelog |
 | `tasks/<id>.md` | dispatcher | self-sufficient brief for one worker |
 | `reports/<id>.md` | dispatcher | short worker report |
@@ -71,8 +71,8 @@ Rules:
 - one owner per file or area;
 - the worker edits only its scope;
 - run the acceptance command before reporting;
-- commit in its own worktree only when the approved plan authorizes commits;
-  otherwise return the diff without committing;
+- commit in its own worktree by default; if the user asked to keep the work
+  uncommitted, return the diff instead;
 - never push;
 - return a short report: what changed, evidence, risks and next step;
 - stop and ask if the repository contradicts the plan.
@@ -93,13 +93,15 @@ command, it is not ready to delegate.
    - The child never receives broader permissions than the parent. Approvals go
      up to the parent; stopping the parent stops its subagents.
 3. **Worker runs.** The worker implements only its scope, runs acceptance,
-   commits only when the approved plan authorizes it, and returns a short
-   report with the diff or commit. It never pushes.
+   commits in its worktree by default, and returns a short report with the
+   commit. It never pushes. If the request asked for no commits, it returns the
+   diff instead.
 4. **G2 — each task accepted.** Check the report, the acceptance output and the
-   diff or commit. Record `reports/<id>.md`. A worker that edited outside its
+   commit or diff. Record `reports/<id>.md`. A worker that edited outside its
    scope fails the gate.
-5. **Integrate.** Merge the accepted commits or apply the returned diffs, run
-   the full suite, resolve integration issues and update `progress.md`.
+5. **Integrate.** Merge the accepted commits, or apply the returned diffs when
+   the user asked for no commits; run the full suite, resolve integration
+   issues and update `progress.md`.
 6. **G3 — integration green.** Do not advance with a red suite or unresolved
    conflict.
 7. **Independent review.** Give a read-only verifier only the diff and the
@@ -118,11 +120,11 @@ command, it is not ready to delegate.
 
 | Gate | Criterion | Evidence |
 | --- | --- | --- |
-| G1 | plan approved, including commit policy | `plan.md` |
-| G2 | each task accepted | `tasks/<id>.md`, `reports/<id>.md`, acceptance command, diff or commit |
+| G1 | plan approved | `plan.md` |
+| G2 | each task accepted | `tasks/<id>.md`, `reports/<id>.md`, acceptance command, commit or diff |
 | G3 | integration green | full suite, diff, `progress.md` |
 | G4 | every plan criterion mapped to evidence; no open blocker | `review.md` |
-| G5 | ship authorized | `ship.md`, CI status at SHA |
+| G5 | publication authorized | `ship.md`, CI status at SHA |
 
 ## Failure and stops
 

@@ -1,15 +1,17 @@
 ---
 name: ship
-description: Use for explicitly authorized commits, branch push or draft PR delivery, or a separately requested release, with matching review and validation evidence.
+description: Use for local commits after validation and review, authorized branch push or draft PR delivery, or a separately requested release.
 ---
 
 # Ship
 
-Deliver only the operations the user authorized for this task. An explicit
-request to implement, commit and open a PR covers the necessary branch push
-without another approval per step. A commit-only request stays local; a push
-request does not imply a PR, and a PR does not imply merge, release or deploy.
-If the requested operation lacks authorization, stop before that operation.
+Deliver only the operations the user authorized for this task. An implementation
+request normally includes local commits after validation and review; if the user
+asked to keep changes uncommitted, stop before committing. An explicit request
+to implement, commit and open a PR covers the necessary branch push without
+another approval per step. A commit does not imply push; a push request does not
+imply a PR, and a PR does not imply merge, release or deploy. If the requested
+operation lacks authorization, stop before that operation.
 
 Project restrictions and harness permissions still apply. Do not disable
 approval prompts, change permissions or treat a successful review as consent.

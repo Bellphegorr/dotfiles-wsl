@@ -59,14 +59,15 @@ adaptadas ao nosso ambiente, não copiadas com as premissas pessoais dele:
 | No nosso fluxo | Referência do Akita |
 | --- | --- |
 | `planning`: resultado e evidência proporcional | `verification-planning` |
-| `implement`: uma unidade, teste, revisão e commit autorizado | `github-resolution` |
+| `implement`: uma unidade, teste, revisão e commit local | `github-resolution` |
 | `change-review`: evidência independente e revisão do conjunto final | `pr-audit`, `pr-post-audit` |
 | Critério de clareza dentro de `change-review`, sem skill extra | `simplify` |
 | `reflect`: melhorar o processo com evidência e aprovação | `reflect` |
 | `ship`: publicação autorizada e checks no SHA entregue | Limites de `github-resolution` e `release` |
 
 O pedido do usuário pode autorizar o caminho inteiro até o PR; as pausas são
-pedidas em linguagem comum, como “pare a cada entrega”. Isso reduz aprovações
+pedidas em linguagem comum, como “pare a cada entrega”. Commits locais são o
+padrão após validação e review; push e PR exigem pedido. Isso reduz aprovações
 repetidas do procedimento, não as permissões reais do harness.
 
 Nosso ponto de entrega é **draft PR**, sem merge, release ou deploy implícito.

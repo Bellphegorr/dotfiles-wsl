@@ -56,11 +56,13 @@ ou seu pedido justificam um plano, não apenas por haver vários arquivos.
 Se você já autorizou a execução do escopo, ele segue depois de planejar;
 se pediu só um plano, ele espera.
 
-Um pedido como “implemente X, valide, faça commits pequenos e abra um PR”
-autoriza essa sequência sem novo “ok” por tarefa. “Faça commit” fica local;
-PR não autoriza merge/release. Para avaliar entregas intermediárias, acrescente
-“pare depois do plano” ou “pare a cada entrega”. As permissões do CLI/T3 e as
-restrições do projeto continuam valendo; o Builder não as desativa.
+Um pedido de implementação gera commits locais após validação e review, sem
+push. “Não commite” mantém a mudança no working tree. Um pedido como “implemente
+X, valide, faça commits pequenos e abra um PR” autoriza a sequência completa,
+incluindo o push; PR não autoriza merge/release. Para avaliar entregas
+intermediárias, acrescente “pare depois do plano” ou “pare a cada entrega”. As
+permissões do CLI/T3 e as restrições do projeto continuam valendo; o Builder
+não as desativa.
 
 As sete skills são compartilhadas: `planning`, `orchestrate`, `implement`,
 `change-review`, `ship`, `reflect` e `notion-note`. O Copilot as carrega quando

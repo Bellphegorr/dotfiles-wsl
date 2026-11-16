@@ -1,8 +1,10 @@
-# Orquestração de agentes e ferramentas
+# Multiagentes: quando usar e o que aprendi
 
-> O que é orquestração, quando vale a pena e quais ferramentas existem.
-> Atualizado em 14/11/2026. O fluxo que uso no dia a dia está em
-> [fluxo-de-trabalho.md](fluxo-de-trabalho.md).
+> O que é orquestração, quando vale a pena e o que os pilotos mostraram.
+> Atualizado em 16/11/2026. O fluxo diário está em
+> [fluxo-de-trabalho.md](fluxo-de-trabalho.md); o playbook pesado está em
+> [trabalho-pesado-com-workers.md](trabalho-pesado-com-workers.md) e o mapa de
+> ferramentas em [mapa-de-ferramentas.md](mapa-de-ferramentas.md).
 
 ## 1. O conceito
 
@@ -95,33 +97,12 @@ não há obrigação de criar uma nova regra após cada tarefa.
 maior que a tarefa, não divida.
 
 O desenho operacional para o caso pesado — papéis, artefatos, gates e stops —
-está em [orquestracao-pesada.md](orquestracao-pesada.md).
+está em [trabalho-pesado-com-workers.md](trabalho-pesado-com-workers.md).
 
-## 4. Mapa de ferramentas
+## 4. Ferramentas
 
-Ferramenta é camada. Um cockpit não substitui o harness, e um assistente
-pessoal não substitui o agente de código.
-
-| Camada | O que resolve | Exemplos | Para mim |
-| --- | --- | --- | --- |
-| Modelos | acesso aos modelos | **OpenCode Go**, OpenCode Console, OpenRouter, LiteLLM, Ollama/LM Studio | Já uso o Go |
-| Harness | executa o agente no código | **OpenCode**, Claude Code, Codex CLI, Gemini CLI, Aider, Goose, Cline/Roo | Já uso o OpenCode; trocar só com motivo |
-| IDE com agente | editor + agente juntos | Cursor, Windsurf, Zed, VS Code + Copilot | Só se preferir editor |
-| Cockpit | sessões, diffs, worktrees, celular | **T3 Code**, OpenChamber, Conductor, Vibe Kanban, Claude Squad | T3 em uso; OpenChamber é alternativa |
-| Código assíncrono | delega issue, recebe PR | OpenHands, Devin, Jules | Talvez, para tarefas bem definidas |
-| Assistente 24/7 | memória, mensageria, agendamento | Hermes, OpenBot, Grok Bot | Só se quiser; escolha um |
-| Frameworks | construir produto de agentes | LangGraph, CrewAI, Agent SDKs | Não é uso diário |
-| Transversal | integrações e memória | MCP, Composio, n8n, Letta/Mem0, Playwright | Quando precisar |
-
-```text
-O que você quer?
-├── Codar no repositório → OpenCode + builder
-├── Mesma mudança em muitos lugares independentes → subagentes/worktrees em paralelo
-├── Interface, celular, comparar modelos → T3 Code ou OpenChamber
-├── Delegar uma issue e receber PR → OpenHands / Devin / Jules
-├── Assistente pessoal 24/7 → Hermes / OpenBot / Grok Bot
-└── Construir um produto de agentes → LangGraph / CrewAI / SDKs
-```
+O mapa de camadas (modelos, harness, cockpit, MCP etc.) e os exemplos estão em
+[mapa-de-ferramentas.md](mapa-de-ferramentas.md).
 
 ## 5. Escolha de modelo
 
@@ -162,10 +143,3 @@ Lições:
 - Vale a pena misturar 2 modelos?:
   https://akitaonrails.com/2026/04/25/llm-benchmarks-vale-a-pena-misturar-2-modelos/
 - Tweet que motivou o teste: https://x.com/TheAhmadOsman/status/2115249215802896719
-- Agentes do OpenCode: https://opencode.ai/docs/agents
-- Configuração do OpenCode: https://opencode.ai/docs/config
-- OpenChamber: https://openchamber.dev/
-- Hermes Agent: https://hermes-agent.nousresearch.com/
-- OpenBot: https://openbot.run/
-- Grok Bot: https://x.ai/bot
-- Comparativo com 36 agentes de código: https://openchamber.dev/blog/ai-coding-agents/

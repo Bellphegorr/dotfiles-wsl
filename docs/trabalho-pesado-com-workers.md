@@ -1,9 +1,8 @@
-# Orquestração pesada
+# Trabalho pesado com workers
 
 > Fluxo para trabalho grande, decomponível ou de alto risco. **Não é o padrão.**
 > O fluxo diário está em [fluxo-de-trabalho.md](fluxo-de-trabalho.md); os
-> conceitos e limites estão em
-> [orquestracao-de-agentes.md](orquestracao-de-agentes.md).
+> conceitos e limites estão em [multiagentes.md](multiagentes.md).
 
 ## 1. Quando usar
 
@@ -92,7 +91,7 @@ Pedido
                             └── Verificador → review.md
                                 └── G4: review limpo
                                     └── Ship → ship.md
-                                        └── G5: autorização
+                                        └── G5: entrega conferida
 ```
 
 ## 6. Contrato do worker

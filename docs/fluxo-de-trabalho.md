@@ -1,12 +1,12 @@
 # Fluxo de trabalho com o builder
 
 > Um agente, sete skills e o contexto do projeto em arquivos.
-> Atualizado em 14/11/2026. Para o porquê desse desenho, veja
-> [orquestracao-de-agentes.md](orquestracao-de-agentes.md).
+> Atualizado em 16/11/2026. Para o porquê desse desenho, veja
+> [multiagentes.md](multiagentes.md).
 >
 > As regras e os artefatos compartilhados ficam em `config/agent-workflow/`.
-> Este guia explica o uso no OpenCode; para instalação e particularidades do
-> Copilot, veja [fluxo-copilot.md](fluxo-copilot.md).
+> Harnesses usados: **OpenCode** e **GitHub Copilot CLI**. O fluxo e as skills
+> são os mesmos; cada harness tem seu perfil e instalador.
 
 ## Visão geral
 
@@ -26,6 +26,18 @@ cada projeto (criado uma vez por projeto)
         ├── plan.md
         └── progress.md
 ```
+
+## Harnesses
+
+| Harness | Perfil | Instalação | Como escolher o Builder |
+| --- | --- | --- | --- |
+| OpenCode | `config/opencode/agents/builder.md` | `bash config/opencode/scripts/install.sh` | TUI/CLI (`opencode`) |
+| GitHub Copilot CLI | `config/copilot/agents/builder.agent.md` | `bash config/copilot/scripts/install.sh` | `/agent` |
+
+O T3 Code é o cockpit usado com o OpenCode, não um harness separado. As skills
+compartilhadas ficam em `~/.config/opencode/skills/` no OpenCode e em
+`~/.copilot/skills/` no Copilot CLI. `notion-note` exige o MCP do Notion
+configurado no harness escolhido.
 
 ## Adicionar outro harness
 
@@ -55,17 +67,20 @@ inicializador, sem tocar no seu `HOME`.
 
 ## Instalação
 
-**Uma vez por máquina:**
+**Uma vez por máquina, no harness que você usa:**
 
 ```bash
+# OpenCode
 bash ~/dotfiles/config/opencode/scripts/install.sh
+
+# GitHub Copilot CLI
+bash ~/dotfiles/config/copilot/scripts/install.sh
 ```
 
-Cria symlinks para a configuração e os agentes do OpenCode, e instala as skills
-compartilhadas em `~/.config/opencode/skills/`. O instalador do Copilot aponta
-para as mesmas skills em `~/.copilot/skills/`. Os templates e o inicializador
-ficam em `config/agent-workflow/`; ambos os instaladores apontam para essa
-mesma fonte e para o comando `agent-workflow-init`.
+Cada instalador cria os links do respectivo perfil e expõe as mesmas skills
+compartilhadas de `config/agent-workflow/`. Os templates e o inicializador
+ficam nessa pasta; os dois instaladores apontam para a mesma fonte e para o
+comando `agent-workflow-init`.
 
 Ao adicionar uma skill nova ou aposentar um perfil, rode novamente o instalador
 do harness: os links são individuais e links órfãos de skills/agentes são
@@ -73,8 +88,8 @@ removidos. Alterar uma skill já ligada não exige reinstalar, mas uma sessão e
 andamento pode precisar ser reiniciada para relê-la.
 
 Pode rodar de novo; arquivos diferentes vão para
-`~/.local/state/opencode-dotfiles-backup/` antes de serem trocados. Reinicie o
-OpenCode depois.
+`~/.local/state/*-dotfiles-backup/` antes de serem trocados. Reinicie o harness
+depois.
 
 **Uma vez por projeto:**
 
@@ -90,9 +105,10 @@ não recebem alterações de template automaticamente.
 
 ## O agente: builder
 
-Agente principal. Roda no modelo padrão do `opencode.jsonc`. Antes de
-mexer em qualquer coisa, lê o `AGENTS.md` e a memória disponíveis. Se faltarem,
-consulta as convenções do repositório, sem inventar comandos ou resultados.
+Agente principal. Cada perfil usa o modelo e as permissões do harness. Antes
+de mexer em qualquer coisa, lê o `AGENTS.md` e a memória disponíveis. Se
+faltarem, consulta as convenções do repositório, sem inventar comandos ou
+resultados.
 
 Use um modelo bom para o papel. Nomes, preços e variantes mudam, então a
 escolha fica na configuração, não no guia.
@@ -103,9 +119,11 @@ escolha fica na configuração, não no guia.
 | Mudança pequena e clara | Usa `implement`, sem plano formal, e revisa o resultado |
 | Incerteza, risco ou pedido de planejamento | Usa `planning`; continua se a execução já estiver autorizada e não houver decisão material pendente |
 | Escopo ou plano autorizado | Executa uma unidade coerente por vez, sem novo “ok” por tarefa |
+| Trabalho grande com fatias independentes | Usa `orchestrate` |
 | Commit ou candidato final | Usa `change-review`, incluindo commits já feitos |
 | Você pede commit, push, PR ou release | Usa `ship` para executar o pedido |
 | Você pede melhoria do processo | Usa `reflect` e propõe o menor ajuste útil |
+| Você pede para salvar uma nota no Notion | Usa `notion-note`; requer o MCP do Notion |
 
 Tocar vários arquivos não obriga a criar plano. Regras fixas: não amplia o
 escopo, não enfraquece testes e não declara sucesso sem evidência. Duas
@@ -123,12 +141,11 @@ Você pode acrescentar “pare depois do plano”, “pare a cada entrega” ou
 quando precisa de uma decisão material ou encontra um bloqueio real.
 Restrições do projeto continuam valendo.
 
-**Permissões são outra camada.** O perfil do OpenCode mantém `ask` para push,
-rebase, comandos de descarte e `rm` recursivo, inclusive as formas com opções
-globais de Git previstas no perfil. Commit local roda direto. O Copilot segue
-as permissões do próprio CLI e do ambiente. Este fluxo não recomenda `--auto`
-nesta máquina compartilhada: essa flag pode autoaprovar comandos marcados
-`ask`.
+**Permissões são outra camada.** Cada harness aplica as próprias regras: no
+OpenCode, push, rebase, comandos de descarte e `rm` recursivo pedem
+confirmação; no Copilot, depende do modo de aprovação da sessão. A autorização
+da tarefa não elimina esses prompts. Este fluxo não recomenda `--auto` nesta
+máquina compartilhada.
 
 ## Branch, validação e entrega
 
@@ -163,7 +180,8 @@ trabalho incompleto só para apresentar uma branch limpa.
 
 Cada skill é um `SKILL.md` com o passo a passo de uma etapa. O agente vê só o
 nome e a descrição; o conteúdo é lido quando ele decide usar a skill ou quando
-você pede ("use a skill planning").
+você pede ("use a skill planning"). As sete skills são compartilhadas pelos
+dois harnesses.
 
 | Skill | O que faz | O que não faz |
 | --- | --- | --- |
@@ -175,15 +193,19 @@ você pede ("use a skill planning").
 | `reflect` | Analisa atritos recorrentes e propõe o menor ajuste útil em regras ou ferramentas | Não muda skills/configurações silenciosamente nem cria algo sem necessidade |
 | `notion-note` | Salva ou atualiza notas no Second Brain; requer o MCP do Notion | Regras detalhadas ficam no próprio `SKILL.md` |
 
+`orchestrate` só entra em trabalho grande; o playbook está em
+[trabalho-pesado-com-workers.md](trabalho-pesado-com-workers.md). `notion-note`
+fica fora do ciclo de código e exige o MCP do Notion.
+
 > A revisão (`change-review`) é feita pelo próprio builder. Para algo
 > importante, rode numa sessão nova ou com outro modelo.
 
 ## O contexto do projeto
 
 **`AGENTS.md`** — a peça mais importante. Comandos de teste, lint, typecheck e
-build; invariantes; mapa das pastas; armadilhas; definição de pronto. O
-OpenCode já carrega esse arquivo sozinho. Sem comandos reais, o agente não sabe
-validar o que fez.
+build; invariantes; mapa das pastas; armadilhas; definição de pronto. O harness
+lê esse arquivo automaticamente quando aplicável. Sem comandos reais, o agente
+não sabe validar o que fez.
 
 **`.agents/memory/`** — arquivos de texto que o agente lê no início e atualiza
 quando aprende algo:
@@ -203,10 +225,10 @@ esses artefatos, criados pela skill `planning` e atualizados durante a execuçã
 
 ## Um dia de uso
 
-```bash
-cd ~/meu-projeto
-opencode            # escolha o agente "builder"
-```
+Abra o harness e escolha o Builder:
+
+- **OpenCode:** `opencode`
+- **Copilot CLI:** `copilot`, depois `/agent`
 
 O Builder segue a linha do fluxo do Akita: um único agente que carrega a skill
 de cada etapa, lê `AGENTS.md` e a memória do projeto e vai até onde você
@@ -246,9 +268,7 @@ Builder: [prepara a branch; planeja só se houver incerteza ou risco]
          [relata SHA e estado do CI; sem CI, diz que a validação foi local]
 ```
 
-Diferente do `--yolo` do Akita, no OpenCode comandos como `git commit`,
-`git push`, `reset --hard` e `rm -r` ainda pedem sua confirmação; no Copilot
-depende do modo de aprovação da sessão.
+As permissões de cada harness continuam valendo.
 
 ### 4. Melhorar o próprio fluxo
 
@@ -262,7 +282,8 @@ Em todos os casos, ele pergunta só quando falta uma decisão de escopo, design
 ou acesso; num bloqueio, preserva o trabalho e relata o último estado
 validado. O uso de subagentes fica a critério do harness. Para trabalho grande
 com fatias independentes, use a skill `orchestrate`; fora disso, o builder
-resolve sozinho.
+resolve sozinho. Para salvar uma nota, peça “use notion-note para registrar
+...”; a skill exige o MCP do Notion.
 
 ## Melhoria contínua com reflect
 
@@ -275,7 +296,7 @@ Ela não vasculha históricos de outros projetos nem altera skills, configuraç�
 ou permissões por conta própria. O registro normal de fatos úteis do projeto
 não exige rodar reflect depois de cada edição.
 
-## Limitações
+## Limitações do OpenCode
 
 - **T3 Code:** o seletor de agentes customizados ainda não aparece com
   OpenCode 2.x. Use a TUI (`opencode`) ou a CLI
@@ -288,16 +309,24 @@ não exige rodar reflect depois de cada edição.
 - **Variante:** a variante escolhida no `opencode.jsonc` pode não aparecer no
   export da sessão. Para garantir, use `-m` ou o seletor.
 
+## Notas do Copilot CLI
+
+O Copilot CLI segue o modo de aprovação e a configuração de MCP do próprio
+CLI; o perfil em `config/copilot/agents/builder.agent.md` não define modelo nem
+permissões. Use `/agent` para escolher o Builder.
+
 ## Onde estão os arquivos
 
 | Caminho no dotfiles | O que é |
 | --- | --- |
-| `config/opencode/opencode.jsonc` | Configuração e modelo padrão |
-| `config/opencode/agents/*.md` | O `builder` |
+| `config/opencode/opencode.jsonc` | Configuração do OpenCode |
+| `config/opencode/agents/builder.md` | Perfil do OpenCode (frontmatter + corpo gerado) |
+| `config/copilot/agents/builder.agent.md` | Perfil do Copilot CLI (frontmatter + corpo gerado) |
 | `config/agent-workflow/agents/builder.md` | Texto único do Builder, usado pelos dois harnesses |
 | `config/agent-workflow/scripts/sync-agents.sh` | Copia esse texto para os perfis (`--check` só verifica) |
 | `config/agent-workflow/scripts/check.sh` | Validação completa do fluxo, sem tocar no `HOME` |
-| `config/agent-workflow/skills/*/SKILL.md` | Skills compartilhadas com o Copilot |
+| `config/agent-workflow/skills/*/SKILL.md` | Skills compartilhadas pelos harnesses |
 | `config/agent-workflow/templates/` | Modelos compartilhados de `AGENTS.md` e memória |
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializador compartilhado de projeto |
-| `config/opencode/scripts/install.sh` | Instala na máquina |
+| `config/opencode/scripts/install.sh` | Instala o perfil e as skills no OpenCode |
+| `config/copilot/scripts/install.sh` | Instala o perfil e as skills no Copilot CLI |

@@ -37,6 +37,26 @@ link() {
   echo "linked    $dest -> $src"
 }
 
+# Remove links owned by this checkout whose skill directory no longer exists,
+# such as after a rename. Unrelated user skills are left untouched.
+prune_links() {
+  local dir="$1" root="$2" dest target
+
+  [[ -d "$dir" ]] || return 0
+  for dest in "$dir"/*; do
+    [[ -L "$dest" ]] || continue
+    target="$(readlink "$dest" 2>/dev/null || true)"
+    case "$target" in
+      "$root"/*)
+        if [[ ! -e "$target" ]]; then
+          rm "$dest"
+          echo "pruned    $dest -> $target"
+        fi
+        ;;
+    esac
+  done
+}
+
 link "$OPENCODE_DIR/opencode.jsonc" "$CONFIG_DIR/opencode.jsonc"
 
 # Older installs linked the legacy agents into the V1 `agent/` directory.
@@ -55,11 +75,13 @@ fi
 for file in "$OPENCODE_DIR"/agents/*.md; do
   link "$file" "$CONFIG_DIR/agents/$(basename "$file")"
 done
+prune_links "$CONFIG_DIR/agents" "$OPENCODE_DIR/agents"
 
 for dir in "$WORKFLOW_DIR"/skills/*/; do
   dir="${dir%/}"
   link "$dir" "$CONFIG_DIR/skills/$(basename "$dir")"
 done
+prune_links "$CONFIG_DIR/skills" "$WORKFLOW_DIR/skills"
 
 link "$WORKFLOW_DIR/scripts/init-agent-workflow.sh" "$BIN_DIR/agent-workflow-init"
 

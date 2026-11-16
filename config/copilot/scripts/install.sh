@@ -35,14 +35,36 @@ link() {
   echo "linked    $dest -> $src"
 }
 
+# Remove links owned by this checkout whose skill directory no longer exists,
+# such as after a rename. Unrelated user skills are left untouched.
+prune_links() {
+  local dir="$1" root="$2" dest target
+
+  [[ -d "$dir" ]] || return 0
+  for dest in "$dir"/*; do
+    [[ -L "$dest" ]] || continue
+    target="$(readlink "$dest" 2>/dev/null || true)"
+    case "$target" in
+      "$root"/*)
+        if [[ ! -e "$target" ]]; then
+          rm "$dest"
+          echo "pruned    $dest -> $target"
+        fi
+        ;;
+    esac
+  done
+}
+
 for file in "$COPILOT_DIR"/agents/*.agent.md; do
   link "$file" "$AGENT_DIR/$(basename "$file")"
 done
+prune_links "$AGENT_DIR" "$COPILOT_DIR/agents"
 
 for dir in "$WORKFLOW_DIR"/skills/*/; do
   dir="${dir%/}"
   link "$dir" "$SKILL_DIR/$(basename "$dir")"
 done
+prune_links "$SKILL_DIR" "$WORKFLOW_DIR/skills"
 
 link "$WORKFLOW_DIR/scripts/init-agent-workflow.sh" "$INIT_DIR/agent-workflow-init"
 link "$WORKFLOW_DIR/scripts/init-agent-workflow.sh" "$INIT_DIR/copilot-workflow-init"

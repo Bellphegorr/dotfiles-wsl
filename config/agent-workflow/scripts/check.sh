@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Validates the agent workflow config without touching the real HOME:
 # script syntax, generated agent profiles, skill frontmatter, guide links,
-# and both installers plus the initializer in a disposable HOME.
+# and the installers plus the initializer in disposable HOME directories.
 set -euo pipefail
 
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
@@ -13,7 +13,7 @@ trap 'rm -rf "$TMP"' EXIT
 fail() { echo "FAIL: $*" >&2; exit 1; }
 pass() { echo "PASS: $*"; }
 
-for script in "$REPO"/config/{opencode,copilot}/scripts/install.sh "$WORKFLOW"/scripts/*.sh; do
+for script in "$REPO"/scripts/install-shell.sh "$REPO"/config/{opencode,copilot}/scripts/install.sh "$WORKFLOW"/scripts/*.sh; do
   bash -n "$script" || fail "syntax: $script"
 done
 pass 'script syntax'
@@ -102,3 +102,66 @@ for name in decisions gotchas handoff; do
   cmp -s "$project/.agents/memory/$name.md" "$WORKFLOW/templates/memory/$name.md" || fail "template: $name"
 done
 pass 'initializer preserves existing files, copies templates and is idempotent'
+
+shell_repo="$TMP/shell-repo"
+mkdir -p "$shell_repo/scripts" "$shell_repo/config/tmux/scripts"
+cp "$REPO/scripts/install-shell.sh" "$shell_repo/scripts/"
+cp "$REPO/bashrc" "$shell_repo/bashrc"
+cp "$REPO/config/tmux/scripts/startup.sh" "$shell_repo/config/tmux/scripts/"
+shell_installer="$shell_repo/scripts/install-shell.sh"
+export HOME="$TMP/shell-empty-home" XDG_STATE_HOME="$TMP/shell-empty-state"
+bash "$shell_installer" > "$TMP/shell-empty.log" 2>&1
+cmp -s "$HOME/.bashrc" "$shell_repo/bashrc" || fail 'fresh bashrc not installed'
+cmp -s "$HOME/.config/tmux/scripts/startup.sh" "$shell_repo/config/tmux/scripts/startup.sh" \
+  || fail 'fresh tmux startup not installed'
+[[ ! -e "$XDG_STATE_HOME/shell-dotfiles-backup" ]] || fail 'fresh install created unnecessary backup'
+export HOME="$TMP/shell-home" XDG_STATE_HOME="$TMP/shell-state"
+mkdir -p "$HOME"
+echo 'local bashrc' > "$HOME/.bashrc"
+if bash "$shell_installer" > "$TMP/shell-conflict.log" 2>&1; then
+  fail 'shell installer accepted an unmanaged local file'
+fi
+grep -qx 'local bashrc' "$HOME/.bashrc" || fail 'shell conflict changed bashrc'
+[[ ! -e "$HOME/.config" && ! -e "$XDG_STATE_HOME" ]] || fail 'shell conflict partially installed files'
+bash "$shell_installer" --force > "$TMP/shell-1.log" 2>&1
+grep -rqx 'local bashrc' "$XDG_STATE_HOME/shell-dotfiles-backup" || fail 'shell backup missing'
+bash "$shell_installer" > "$TMP/shell-2.log" 2>&1
+grep -q '^copied\|^backup' "$TMP/shell-2.log" && fail 'second shell install was not a no-op'
+cmp -s "$HOME/.bashrc" "$shell_repo/bashrc" || fail 'bashrc not installed'
+cmp -s "$HOME/.config/tmux/scripts/startup.sh" "$shell_repo/config/tmux/scripts/startup.sh" \
+  || fail 'tmux startup not installed'
+[[ -x "$HOME/.config/tmux/scripts/startup.sh" && ! -L "$HOME/.bashrc" ]] || fail 'shell install permissions or copy'
+
+echo '# repo update' >> "$shell_repo/bashrc"
+bash "$shell_installer" > "$TMP/shell-update.log" 2>&1
+cmp -s "$HOME/.bashrc" "$shell_repo/bashrc" || fail 'managed bashrc not updated'
+find "$XDG_STATE_HOME/shell-dotfiles-backup" -name .bashrc -exec cmp -s "$REPO/bashrc" {} \; -print \
+  | grep -q . || fail 'managed update not backed up'
+echo '# another repo update' >> "$shell_repo/bashrc"
+echo '# local edit' >> "$HOME/.config/tmux/scripts/startup.sh"
+if bash "$shell_installer" > "$TMP/shell-edited.log" 2>&1; then
+  fail 'shell installer overwrote a local edit'
+fi
+grep -qx '# local edit' "$HOME/.config/tmux/scripts/startup.sh" || fail 'local edit lost'
+grep -qx '# another repo update' "$HOME/.bashrc" && fail 'conflict allowed a partial update'
+bash "$shell_installer" --force > "$TMP/shell-force.log" 2>&1
+grep -rqx '# local edit' "$XDG_STATE_HOME/shell-dotfiles-backup" || fail 'local edit not backed up'
+
+rm "$HOME/.bashrc"
+echo 'external file' > "$TMP/external-bashrc"
+ln -s "$TMP/external-bashrc" "$HOME/.bashrc"
+if bash "$shell_installer" > "$TMP/shell-link.log" 2>&1; then
+  fail 'shell installer accepted an unmanaged symlink'
+fi
+bash "$shell_installer" --force > "$TMP/shell-link-force.log" 2>&1
+grep -qx 'external file' "$TMP/external-bashrc" || fail 'symlink target changed'
+[[ ! -L "$HOME/.bashrc" ]] || fail 'symlink not replaced by a copy'
+find "$XDG_STATE_HOME/shell-dotfiles-backup" -type l -name .bashrc -print \
+  | grep -q . || fail 'symlink not backed up'
+rm "$HOME/.bashrc"
+mkdir "$HOME/.bashrc"
+if bash "$shell_installer" --force > "$TMP/shell-directory.log" 2>&1; then
+  fail 'shell installer replaced a directory'
+fi
+[[ -d "$HOME/.bashrc" ]] || fail 'shell installer changed a directory'
+pass 'shell installer protects local edits, backs up replacements, updates managed copies and is idempotent'

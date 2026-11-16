@@ -37,6 +37,20 @@ if [ -d /run/WSL ] && WSL_INTEROP="$(ls /run/WSL/*_interop 2>/dev/null | head -1
             *) export PATH="$WINPATH:$PATH" ;;
         esac
     fi
+
+    # WSLg: sem isso, panes do tmux (T3, herdr etc.) não têm display e
+    # programas gráficos como o herdr-app não abrem janela.
+    if [ -d /mnt/wslg ]; then
+        if [ -S /tmp/.X11-unix/X0 ] && [ -z "${DISPLAY:-}" ]; then
+            export DISPLAY=:0
+        fi
+        if [ -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/wayland-0" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+            export WAYLAND_DISPLAY=wayland-0
+        fi
+        if [ -S /mnt/wslg/PulseServer ] && [ -z "${PULSE_SERVER:-}" ]; then
+            export PULSE_SERVER=unix:/mnt/wslg/PulseServer
+        fi
+    fi
 fi
 
 # Só há trabalho se não existir nenhuma sessão (ignora bootstrap órfão

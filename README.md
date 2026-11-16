@@ -7,6 +7,9 @@ Configurações pessoais para sincronizar entre máquinas.
 ```bash
 git clone <url> ~/dotfiles
 
+# Shell e startup do tmux
+bash ~/dotfiles/scripts/install-shell.sh
+
 # Harnesses (instale os que usa)
 bash ~/dotfiles/config/opencode/scripts/install.sh
 bash ~/dotfiles/config/copilot/scripts/install.sh
@@ -17,6 +20,12 @@ bash ~/dotfiles/config/t3code/scripts/install.sh
 # Git no WSL (opcional)
 bash ~/dotfiles/config/git/configure-gcm.sh
 ```
+
+O instalador de shell copia `bashrc` para `~/.bashrc` e o `startup.sh` para
+`~/.config/tmux/scripts/`. Pode ser rodado de novo após atualizar o repo: ele
+atualiza apenas o que não foi editado localmente, guarda backup de cada
+substituição em `~/.local/state/shell-dotfiles-backup/` e aborta se encontrar
+uma edição local. Use `--force` para autorizar a substituição.
 
 O fluxo de agentes é compartilhado entre **OpenCode** e **GitHub Copilot CLI**.
 O Builder é o agente ativo; `Planner 0.2` e `Agent 0.2` foram aposentados.
@@ -46,6 +55,7 @@ agent-workflow-init .
 | Caminho | Descrição |
 | --- | --- |
 | `bashrc` / `profile` | Shell, aliases, PATH, mise e auto-start do tmux |
+| `scripts/install-shell.sh` | Copia `bashrc` e `startup.sh` do tmux, com backup |
 | `config/git/configure-gcm.sh` | Configura o GCM do Windows no Git do WSL |
 | `config/tmux/` | Configuração, scripts de sessão e startup |
 | `config/mise/config.toml` | Gerenciador de versões (mise) |

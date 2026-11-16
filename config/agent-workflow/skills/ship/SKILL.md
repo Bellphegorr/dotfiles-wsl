@@ -34,9 +34,8 @@ approval prompts, change permissions or treat a successful review as consent.
   include unrelated pre-staged work, secrets, `.env`, local databases or
   generated artifacts outside the authorized change. If safe separation is
   impossible, report the blocker instead of committing other work.
-- Follow the repository's commit convention and preserve required attribution;
-  use Portuguese imperative messages unless the project says otherwise. Prefer
-  a small independently valid commit, not a commit for every file/edit.
+- Follow the repository's commit convention and preserve required attribution.
+  Prefer a small independently valid commit, not a commit for every file/edit.
 - Do not amend or rewrite history. A normal delivery request does not authorize
   those operations.
 - Record the resulting hash. An intermediate commit needs focused evidence;

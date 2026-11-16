@@ -63,8 +63,6 @@
   protected branches, force push or disable permissions to finish a task.
 - Do not rewrite history or discard work without a separate explicit request.
 - Do not weaken tests or remove assertions.
-- Write commit messages in Portuguese, in the imperative mood (for example,
-  "adiciona validação de entrada").
 - Do not add speculative abstractions, TODOs or drive-by refactors.
 - Ask about ambiguity that materially changes scope, compatibility or design.
 - Fix in-scope failures; stop on a genuine blocker without discarding changes

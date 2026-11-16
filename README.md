@@ -11,6 +11,9 @@ git clone <url> ~/dotfiles
 bash ~/dotfiles/config/opencode/scripts/install.sh
 bash ~/dotfiles/config/copilot/scripts/install.sh
 
+# T3 Code (opcional)
+bash ~/dotfiles/config/t3code/scripts/install.sh
+
 # Git no WSL (opcional)
 bash ~/dotfiles/config/git/configure-gcm.sh
 ```
@@ -49,6 +52,7 @@ agent-workflow-init .
 | `config/opencode/` | Configuração e perfil do OpenCode |
 | `config/copilot/` | Perfil e instalador do Copilot CLI |
 | `config/agent-workflow/` | Fonte do Builder, skills, templates e scripts |
+| `config/t3code/` | Tema, keybindings e instalador do T3 Code |
 | `docs/` | Guias detalhados (índice acima) |
 
 O `~/.gitconfig` não é versionado: nome, email e credenciais são específicos de
@@ -72,10 +76,21 @@ cada máquina.
 ### AI
 
 - opencode
+- T3 Code
 - GitHub Copilot
 
 O `config/opencode/opencode.jsonc` registra o MCP remoto do Notion. Em cada
 máquina nova, autentique uma vez pelo `/mcps` do OpenCode.
+
+### T3 Code
+
+O T3 Code não sincroniza configurações pela conta. Keybindings e tema ficam no
+ambiente; aparência, fontes e tamanhos ficam em cada dispositivo. O instalador
+acima publica o tema Matte Black e linka os keybindings.
+
+Em outra máquina que rode um servidor T3 próprio, rode o mesmo instalador. Se
+ela apenas se conecta a este ambiente via T3 Connect, não precisa: tema,
+keybindings, providers, projetos e threads vêm do servidor.
 
 ### Editores
 

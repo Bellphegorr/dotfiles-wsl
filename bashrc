@@ -116,6 +116,20 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# WSLg: consoles e o servidor tmux podem iniciar sem as variáveis do Windows.
+# Sem isso, programas gráficos (herdr-app) não abrem janela nos panes.
+if [ -d /mnt/wslg ]; then
+    if [ -S /tmp/.X11-unix/X0 ] && [ -z "${DISPLAY:-}" ]; then
+        export DISPLAY=:0
+    fi
+    if [ -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/wayland-0" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+        export WAYLAND_DISPLAY=wayland-0
+    fi
+    if [ -S /mnt/wslg/PulseServer ] && [ -z "${PULSE_SERVER:-}" ]; then
+        export PULSE_SERVER=unix:/mnt/wslg/PulseServer
+    fi
+fi
+
 # Custom Configurations
 eval "$(~/.local/bin/mise activate bash)"
 

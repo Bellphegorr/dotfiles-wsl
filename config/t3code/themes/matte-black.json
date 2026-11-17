@@ -3,6 +3,7 @@
   "id": "matte-black",
   "name": "Matte Black",
   "appearance": "dark",
+  "css": ":root {\n  --radius: 0px;\n  --radius-xs: 0px;\n  --radius-sm: 0px;\n  --radius-md: 0px;\n  --radius-lg: 0px;\n  --radius-xl: 0px;\n  --radius-2xl: 0px;\n  --font-sans: var(--font-mono);\n  --font-composer: var(--font-mono);\n}\n\n[data-slot=\"button\"],\n[data-slot=\"input\"],\n[data-slot=\"menu-trigger\"],\n[data-slot=\"select-trigger\"],\n[data-slot=\"toggle\"],\n[data-slot=\"dialog-popup\"],\n[data-slot=\"popover-popup\"],\n[data-slot=\"menu-popup\"],\n[data-slot=\"tooltip-popup\"],\n[data-slot=\"composer-host\"],\n[data-app-sidebar] [data-thread-item],\n[data-app-sidebar] [data-sidebar-row] {\n  border-radius: 0;\n}\n\n[data-app-sidebar] [data-sidebar-row][aria-current=\"page\"] {\n  box-shadow: inset 2px 0 0 var(--app-theme-accent);\n}\n",
   "colors": {
     "canvas": "oklch(0.182204 0 0)",
     "chrome": "oklch(0.182204 0 0)",

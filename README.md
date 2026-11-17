@@ -96,7 +96,24 @@ máquina nova, autentique uma vez pelo `/mcps` do OpenCode.
 
 O T3 Code não sincroniza configurações pela conta. Keybindings e tema ficam no
 ambiente; aparência, fontes e tamanhos ficam em cada dispositivo. O instalador
-acima publica o tema Matte Black e linka os keybindings.
+acima publica os temas de `config/t3code/themes/` em `~/.t3/userdata/themes/` e
+linka os keybindings. Por padrão ele ativa o `matte-black`; use
+`T3CODE_DEFAULT_THEME=matte-black-minimal` para ativar o minimal já na
+instalação.
+
+O `matte-black-minimal` é uma variação opcional inspirada no Neovim: cantos
+retos, interface monoespaçada, divisórias brancas, syntax highlight baseado no
+`matteblack.nvim` e detalhes âmbar. Para ativá-lo depois da instalação:
+
+```bash
+t3 theme set matte-black-minimal --base-dir "$HOME/.t3"
+```
+
+Para voltar ao Matte Black original:
+
+```bash
+t3 theme set matte-black --base-dir "$HOME/.t3"
+```
 
 Em outra máquina que rode um servidor T3 próprio, rode o mesmo instalador. Se
 ela apenas se conecta a este ambiente via T3 Connect, não precisa: tema,

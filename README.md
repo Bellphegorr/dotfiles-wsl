@@ -13,6 +13,11 @@ bash ~/dotfiles/scripts/install-shell.sh
 # Harnesses (instale os que usa)
 bash ~/dotfiles/config/opencode/scripts/install.sh
 bash ~/dotfiles/config/copilot/scripts/install.sh
+bash ~/dotfiles/config/claude/scripts/install.sh
+
+# Claude Code com config próprio (por exemplo, a instância do T3)
+CLAUDE_CONFIG_DIR="$HOME/.claude_opencode_go" \
+  bash ~/dotfiles/config/claude/scripts/install.sh
 
 # T3 Code (opcional)
 bash ~/dotfiles/config/t3code/scripts/install.sh
@@ -27,8 +32,9 @@ atualiza apenas o que não foi editado localmente, guarda backup de cada
 substituição em `~/.local/state/shell-dotfiles-backup/` e aborta se encontrar
 uma edição local. Use `--force` para autorizar a substituição.
 
-O fluxo de agentes é compartilhado entre **OpenCode** e **GitHub Copilot CLI**.
-O Builder é o agente ativo; `Planner 0.2` e `Agent 0.2` foram aposentados.
+O fluxo de agentes é compartilhado entre **OpenCode**, **GitHub Copilot CLI** e
+**Claude Code**. O Builder é o agente ativo; `Planner 0.2` e `Agent 0.2` foram
+aposentados.
 Instalação, skills e uso estão em
 [docs/fluxo-de-trabalho.md](docs/fluxo-de-trabalho.md).
 
@@ -61,6 +67,7 @@ agent-workflow-init .
 | `config/mise/config.toml` | Gerenciador de versões (mise) |
 | `config/opencode/` | Configuração e perfil do OpenCode |
 | `config/copilot/` | Perfil e instalador do Copilot CLI |
+| `config/claude/` | Perfil e instalador do Claude Code |
 | `config/agent-workflow/` | Fonte do Builder, skills, templates e scripts |
 | `config/t3code/` | Tema, keybindings e instalador do T3 Code |
 | `docs/` | Guias detalhados (índice acima) |
@@ -88,6 +95,7 @@ cada máquina.
 - opencode
 - T3 Code
 - GitHub Copilot
+- Claude Code
 
 O `config/opencode/opencode.jsonc` registra o MCP remoto do Notion. Em cada
 máquina nova, autentique uma vez pelo `/mcps` do OpenCode.

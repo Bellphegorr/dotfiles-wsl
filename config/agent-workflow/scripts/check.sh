@@ -13,7 +13,7 @@ trap 'rm -rf "$TMP"' EXIT
 fail() { echo "FAIL: $*" >&2; exit 1; }
 pass() { echo "PASS: $*"; }
 
-for script in "$REPO"/scripts/install-shell.sh "$REPO"/config/{opencode,copilot}/scripts/install.sh "$WORKFLOW"/scripts/*.sh; do
+for script in "$REPO"/scripts/install-shell.sh "$REPO"/config/{opencode,copilot,claude}/scripts/install.sh "$WORKFLOW"/scripts/*.sh; do
   bash -n "$script" || fail "syntax: $script"
 done
 pass 'script syntax'
@@ -51,28 +51,36 @@ done
 pass 'local links in README and docs'
 
 export HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/.config" XDG_STATE_HOME="$TMP/home/.local/state"
+export CLAUDE_CONFIG_DIR="$HOME/.claude"
 mkdir -p "$XDG_CONFIG_HOME/opencode/agents" "$XDG_CONFIG_HOME/opencode/skills" \
-  "$HOME/.copilot/agents" "$HOME/.copilot/skills/custom"
+  "$HOME/.copilot/agents" "$HOME/.copilot/skills/custom" \
+  "$HOME/.claude/agents" "$HOME/.claude/skills/custom"
 echo 'user builder' > "$XDG_CONFIG_HOME/opencode/agents/builder.md"
 echo 'user skill' > "$HOME/.copilot/skills/custom/keep.txt"
+echo 'user claude builder' > "$HOME/.claude/agents/builder.md"
+echo 'user claude skill' > "$HOME/.claude/skills/custom/keep.txt"
 # Renamed skills and retired agents leave dangling links in existing installs.
 ln -s "$WORKFLOW/skills/plan" "$XDG_CONFIG_HOME/opencode/skills/plan"
 ln -s "$WORKFLOW/skills/review" "$HOME/.copilot/skills/review"
+ln -s "$WORKFLOW/skills/plan" "$HOME/.claude/skills/plan"
 ln -s "$REPO/config/opencode/agents/planner-0.2.md" "$XDG_CONFIG_HOME/opencode/agents/planner-0.2.md"
 ln -s "$REPO/config/copilot/agents/planner.agent.md" "$HOME/.copilot/agents/planner.agent.md"
+ln -s "$REPO/config/claude/agents/planner.md" "$HOME/.claude/agents/planner.md"
 
 for round in 1 2; do
-  for harness in opencode copilot; do
+  for harness in opencode copilot claude; do
     bash "$REPO/config/$harness/scripts/install.sh" > "$TMP/$harness-$round.log" 2>&1 \
       || { cat "$TMP/$harness-$round.log" >&2; fail "$harness installer, round $round"; }
   done
 done
-grep -q '^linked\|^backup' "$TMP/opencode-2.log" "$TMP/copilot-2.log" && fail 'second install was not a no-op'
+grep -q '^linked\|^backup' "$TMP/opencode-2.log" "$TMP/copilot-2.log" "$TMP/claude-2.log" \
+  && fail 'second install was not a no-op'
 
 links_to() { [[ -L "$1" && "$(readlink -f "$1")" == "$(readlink -f "$2")" ]] || fail "link: $1"; }
 for skill in "$WORKFLOW"/skills/*/; do
   links_to "$XDG_CONFIG_HOME/opencode/skills/$(basename "$skill")" "$skill"
   links_to "$HOME/.copilot/skills/$(basename "$skill")" "$skill"
+  links_to "$HOME/.claude/skills/$(basename "$skill")" "$skill"
 done
 for agent in "$REPO"/config/opencode/agents/*.md; do
   links_to "$XDG_CONFIG_HOME/opencode/agents/$(basename "$agent")" "$agent"
@@ -80,14 +88,20 @@ done
 for agent in "$REPO"/config/copilot/agents/*.agent.md; do
   links_to "$HOME/.copilot/agents/$(basename "$agent")" "$agent"
 done
+for agent in "$REPO"/config/claude/agents/*.md; do
+  links_to "$HOME/.claude/agents/$(basename "$agent")" "$agent"
+done
 links_to "$HOME/.local/bin/agent-workflow-init" "$WORKFLOW/scripts/init-agent-workflow.sh"
 for stale in "$XDG_CONFIG_HOME/opencode/skills/plan" "$HOME/.copilot/skills/review" \
-  "$XDG_CONFIG_HOME/opencode/agents/planner-0.2.md" "$HOME/.copilot/agents/planner.agent.md"; do
+  "$HOME/.claude/skills/plan" "$XDG_CONFIG_HOME/opencode/agents/planner-0.2.md" \
+  "$HOME/.copilot/agents/planner.agent.md" "$HOME/.claude/agents/planner.md"; do
   [[ ! -e "$stale" && ! -L "$stale" ]] || fail "stale link not pruned: $stale"
 done
 grep -rqx 'user builder' "$XDG_STATE_HOME/opencode-dotfiles-backup" || fail 'replaced user file not backed up'
 grep -qx 'user skill' "$HOME/.copilot/skills/custom/keep.txt" || fail 'unrelated user skill touched'
-pass 'both installers link everything, prune stale links, back up replaced files and are idempotent'
+grep -rqx 'user claude builder' "$XDG_STATE_HOME/claude-dotfiles-backup" || fail 'replaced Claude user file not backed up'
+grep -qx 'user claude skill' "$HOME/.claude/skills/custom/keep.txt" || fail 'unrelated Claude skill touched'
+pass 'all three installers link everything, prune stale links, back up replaced files and are idempotent'
 
 project="$TMP/project"
 mkdir -p "$project/.agents/memory"

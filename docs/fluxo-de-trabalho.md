@@ -2,7 +2,7 @@
 
 > Um agente, sete skills e o contexto do projeto em arquivos.
 > Atualizado em 16/11/2026. Para o porquê desse desenho, veja
-> [multiagentes.md](multiagentes.md).
+> [orquestracao.md](orquestracao.md).
 >
 > As regras e os artefatos compartilhados ficam em `config/agent-workflow/`.
 > Harnesses usados: **OpenCode** e **GitHub Copilot CLI**. O fluxo e as skills
@@ -194,7 +194,7 @@ dois harnesses.
 | `notion-note` | Salva ou atualiza notas no Second Brain; requer o MCP do Notion | Regras detalhadas ficam no próprio `SKILL.md` |
 
 `orchestrate` só entra em trabalho grande; o playbook está em
-[trabalho-pesado-com-workers.md](trabalho-pesado-com-workers.md). `notion-note`
+[orquestracao.md](orquestracao.md). `notion-note`
 fica fora do ciclo de código e exige o MCP do Notion.
 
 > A revisão (`change-review`) é feita pelo próprio builder. Para algo

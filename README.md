@@ -44,8 +44,7 @@ agent-workflow-init .
 | Guia | Conteúdo |
 | --- | --- |
 | [Fluxo de trabalho](docs/fluxo-de-trabalho.md) | Builder, skills, memória, instalação e uso |
-| [Multiagentes](docs/multiagentes.md) | Quando dividir trabalho e o que os pilotos mostraram |
-| [Trabalho pesado com workers](docs/trabalho-pesado-com-workers.md) | Fatias independentes, papéis, gates e T3 |
+| [Orquestração](docs/orquestracao.md) | Quando dividir o trabalho e como orquestrar |
 | [Mapa de ferramentas](docs/mapa-de-ferramentas.md) | Camadas: modelos, harness, cockpit, MCP etc. |
 | [Git no WSL (GCM)](docs/git-wsl-gcm.md) | Credential Manager do Windows e troubleshooting |
 | [tmux](docs/tmux.md) | Sessões, scripts, plugins e restore |

@@ -3,7 +3,7 @@
 > Camadas de ferramentas que aparecem quando se trabalha com agentes, o que
 > cada uma resolve e o que uso hoje. O fluxo diário está em
 > [fluxo-de-trabalho.md](fluxo-de-trabalho.md); as decisões sobre dividir
-> trabalho estão em [multiagentes.md](multiagentes.md).
+> trabalho estão em [orquestracao.md](orquestracao.md).
 
 Ferramenta é camada. Um cockpit não substitui o harness, e um assistente
 pessoal não substitui o agente de código.

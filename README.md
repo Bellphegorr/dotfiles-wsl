@@ -44,8 +44,8 @@ agent-workflow-init .
 | Guia | Conteúdo |
 | --- | --- |
 | [Fluxo de trabalho](docs/fluxo-de-trabalho.md) | Builder, skills, memória, instalação e uso |
-| [Multiagentes](docs/multiagentes.md) | Quando dividir trabalho e o que os pilotos mostraram |
-| [Trabalho pesado com workers](docs/trabalho-pesado-com-workers.md) | Fatias independentes, papéis, gates e T3 |
+| [Orquestração](docs/orquestracao.md) | Quando dividir o trabalho e como orquestrar |
+| [T3 Code](docs/t3-code.md) | Tema, keybindings, threads e worktrees |
 | [Mapa de ferramentas](docs/mapa-de-ferramentas.md) | Camadas: modelos, harness, cockpit, MCP etc. |
 | [Git no WSL (GCM)](docs/git-wsl-gcm.md) | Credential Manager do Windows e troubleshooting |
 | [tmux](docs/tmux.md) | Sessões, scripts, plugins e restore |
@@ -94,30 +94,10 @@ máquina nova, autentique uma vez pelo `/mcps` do OpenCode.
 
 ### T3 Code
 
-O T3 Code não sincroniza configurações pela conta. Keybindings e tema ficam no
-ambiente; aparência, fontes e tamanhos ficam em cada dispositivo. O instalador
-acima publica os temas de `config/t3code/themes/` em `~/.t3/userdata/themes/` e
-linka os keybindings. Por padrão ele ativa o `matte-black`; use
-`T3CODE_DEFAULT_THEME=matte-black-minimal` para ativar o minimal já na
-instalação.
-
-O `matte-black-minimal` é uma variação opcional inspirada no Neovim: cantos
-retos, interface monoespaçada, divisórias brancas, syntax highlight baseado no
-`matteblack.nvim` e detalhes âmbar. Para ativá-lo depois da instalação:
-
-```bash
-t3 theme set matte-black-minimal --base-dir "$HOME/.t3"
-```
-
-Para voltar ao Matte Black original:
-
-```bash
-t3 theme set matte-black --base-dir "$HOME/.t3"
-```
-
-Em outra máquina que rode um servidor T3 próprio, rode o mesmo instalador. Se
-ela apenas se conecta a este ambiente via T3 Connect, não precisa: tema,
-keybindings, providers, projetos e threads vêm do servidor.
+Tema, keybindings, threads e worktrees estão em
+[docs/t3-code.md](docs/t3-code.md). Por padrão o instalador ativa o
+`matte-black`; use `T3CODE_DEFAULT_THEME=matte-black-minimal` para ativar o
+minimal já na instalação.
 
 ### Editores
 

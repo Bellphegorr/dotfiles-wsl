@@ -34,7 +34,8 @@ cada projeto (criado uma vez por projeto)
 | OpenCode | `config/opencode/agents/builder.md` | `bash config/opencode/scripts/install.sh` | TUI/CLI (`opencode`) |
 | GitHub Copilot CLI | `config/copilot/agents/builder.agent.md` | `bash config/copilot/scripts/install.sh` | `/agent` |
 
-O T3 Code é o cockpit usado com o OpenCode, não um harness separado. As skills
+O T3 Code é o cockpit usado com o OpenCode, não um harness separado; tema,
+keybindings e mecânica de threads estão em [t3-code.md](t3-code.md). As skills
 compartilhadas ficam em `~/.config/opencode/skills/` no OpenCode e em
 `~/.copilot/skills/` no Copilot CLI. `notion-note` exige o MCP do Notion
 configurado no harness escolhido.
@@ -238,8 +239,8 @@ autorizou, sem pedir aprovação a cada passo. O pedido define os limites.
 
 ```text
 Você:    Corrija o erro de digitação no help do mksession.sh e commite.
-Builder: [sem plano formal: lê, corrige e roda uma checagem simples]
-         [revisa o diff e commita na branch de trabalho, sem push]
+Builder: [usa implement: sem plano formal; lê, corrige e roda uma checagem simples]
+         [usa ship: revisa o diff e commita na branch de trabalho, sem push]
          [relata o hash e o que validou]
 ```
 
@@ -249,10 +250,10 @@ Se preferir a mudança só no working tree, peça “não commite”.
 
 ```text
 Você:    Planeje e implemente X, mas me mostre o plano antes.
-Builder: [cria .agents/work/<slug>/plan.md e progress.md e para]
+Builder: [usa planning: cria .agents/work/<slug>/plan.md e progress.md e para]
 Você:    Aprovado.
-Builder: [implementa unidade por unidade: valida, revisa, atualiza o progresso]
-         [entrega conforme o pedido]
+Builder: [usa implement: unidade por unidade; valida, revisa, atualiza o progresso]
+         [usa ship: entrega conforme o pedido]
 ```
 
 A aprovação do plano autoriza a implementação no escopo definido.
@@ -262,9 +263,9 @@ A aprovação do plano autoriza a implementação no escopo definido.
 ```text
 Você:    Implemente exportação CSV no relatório, com as colunas visíveis.
          Valide, faça commits pequenos e abra um PR.
-Builder: [prepara a branch; planeja só se houver incerteza ou risco]
-         [um commit por unidade validada e revisada]
-         [validação completa no fim, push só da branch e PR em draft]
+Builder: [usa planning só se houver incerteza ou risco; prepara a branch]
+         [usa implement + change-review + ship: um commit por unidade validada e revisada]
+         [usa ship: validação completa no fim, push só da branch e PR em draft]
          [relata SHA e estado do CI; sem CI, diz que a validação foi local]
 ```
 
@@ -274,7 +275,7 @@ As permissões de cada harness continuam valendo.
 
 ```text
 Você:    Use reflect: você pediu aprovação demais nessa tarefa.
-Builder: [examina a conversa e o progresso e propõe a menor mudança]
+Builder: [usa reflect: examina a conversa e o progresso e propõe a menor mudança]
          [espera você aceitar antes de mexer em skill ou configuração]
 ```
 

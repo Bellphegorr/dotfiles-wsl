@@ -5,8 +5,8 @@
 > [orquestracao.md](orquestracao.md).
 >
 > As regras e os artefatos compartilhados ficam em `config/agent-workflow/`.
-> Harnesses usados: **OpenCode** e **GitHub Copilot CLI**. O fluxo e as skills
-> são os mesmos; cada harness tem seu perfil e instalador.
+> Harnesses usados: **OpenCode**, **GitHub Copilot CLI** e **Claude Code**. O
+> fluxo e as skills são os mesmos; cada harness tem seu perfil e instalador.
 
 ## Visão geral
 
@@ -33,12 +33,16 @@ cada projeto (criado uma vez por projeto)
 | --- | --- | --- | --- |
 | OpenCode | `config/opencode/agents/builder.md` | `bash config/opencode/scripts/install.sh` | TUI/CLI (`opencode`) |
 | GitHub Copilot CLI | `config/copilot/agents/builder.agent.md` | `bash config/copilot/scripts/install.sh` | `/agent` |
+| Claude Code | `config/claude/agents/builder.md` | `bash config/claude/scripts/install.sh` | `claude --agent builder` |
 
-O T3 Code é o cockpit usado com o OpenCode, não um harness separado; tema,
+O T3 Code é o cockpit usado com esses harnesses, não um harness separado; tema,
 keybindings e mecânica de threads estão em [t3-code.md](t3-code.md). As skills
-compartilhadas ficam em `~/.config/opencode/skills/` no OpenCode e em
-`~/.copilot/skills/` no Copilot CLI. `notion-note` exige o MCP do Notion
-configurado no harness escolhido.
+compartilhadas ficam em `~/.config/opencode/skills/` no OpenCode, em
+`~/.copilot/skills/` no Copilot CLI e em `~/.claude/skills/` no Claude Code.
+Instâncias Claude com `CLAUDE_CONFIG_DIR` próprio — como a instância
+`Claude + OpenCode Go` do T3, em `~/.claude_opencode_go` — recebem o instalador
+com essa variável. `notion-note` exige o MCP do Notion configurado no harness
+escolhido.
 
 ## Adicionar outro harness
 
@@ -53,9 +57,10 @@ compatível, prefira um adaptador ou gerador a manter cópias manuais.
 ## Editar o Builder
 
 O texto do Builder fica só em `config/agent-workflow/agents/builder.md`. Cada
-perfil (`config/opencode/agents/builder.md` e
-`config/copilot/agents/builder.agent.md`) mantém apenas o próprio frontmatter
-— modelo, permissões, descrição. Depois de editar o texto:
+perfil (`config/opencode/agents/builder.md`,
+`config/copilot/agents/builder.agent.md` e `config/claude/agents/builder.md`)
+mantém apenas o próprio frontmatter — modelo, permissões, descrição. Depois de
+editar o texto:
 
 ```bash
 config/agent-workflow/scripts/sync-agents.sh   # reescreve o corpo dos perfis
@@ -63,7 +68,7 @@ config/agent-workflow/scripts/check.sh         # valida tudo num HOME descartáv
 ```
 
 O `check.sh` confere sintaxe dos scripts, perfis sincronizados, frontmatter das
-skills, links locais da documentação, os dois instaladores (duas vezes) e o
+skills, links locais da documentação, os três instaladores (duas vezes) e o
 inicializador, sem tocar no seu `HOME`.
 
 ## Instalação
@@ -76,12 +81,21 @@ bash ~/dotfiles/config/opencode/scripts/install.sh
 
 # GitHub Copilot CLI
 bash ~/dotfiles/config/copilot/scripts/install.sh
+
+# Claude Code (config padrão, ~/.claude)
+bash ~/dotfiles/config/claude/scripts/install.sh
+
+# Claude Code com config próprio, como a instância Claude + OpenCode Go do T3
+CLAUDE_CONFIG_DIR="$HOME/.claude_opencode_go" \
+  bash ~/dotfiles/config/claude/scripts/install.sh
 ```
 
 Cada instalador cria os links do respectivo perfil e expõe as mesmas skills
 compartilhadas de `config/agent-workflow/`. Os templates e o inicializador
-ficam nessa pasta; os dois instaladores apontam para a mesma fonte e para o
-comando `agent-workflow-init`.
+ficam nessa pasta; os três instaladores apontam para a mesma fonte e para o
+comando `agent-workflow-init`. No Claude Code, o Builder vira o agente
+principal com `claude --agent builder`; no T3, adicione esse mesmo argumento em
+**Launch arguments** da instância Claude.
 
 Ao adicionar uma skill nova ou aposentar um perfil, rode novamente o instalador
 do harness: os links são individuais e links órfãos de skills/agentes são
@@ -182,7 +196,7 @@ trabalho incompleto só para apresentar uma branch limpa.
 Cada skill é um `SKILL.md` com o passo a passo de uma etapa. O agente vê só o
 nome e a descrição; o conteúdo é lido quando ele decide usar a skill ou quando
 você pede ("use a skill planning"). As sete skills são compartilhadas pelos
-dois harnesses.
+três harnesses.
 
 | Skill | O que faz | O que não faz |
 | --- | --- | --- |
@@ -230,6 +244,7 @@ Abra o harness e escolha o Builder:
 
 - **OpenCode:** `opencode`
 - **Copilot CLI:** `copilot`, depois `/agent`
+- **Claude Code:** `claude --agent builder`
 
 O Builder segue a linha do fluxo do Akita: um único agente que carrega a skill
 de cada etapa, lê `AGENTS.md` e a memória do projeto e vai até onde você
@@ -316,6 +331,20 @@ O Copilot CLI segue o modo de aprovação e a configuração de MCP do próprio
 CLI; o perfil em `config/copilot/agents/builder.agent.md` não define modelo nem
 permissões. Use `/agent` para escolher o Builder.
 
+## Notas do Claude Code
+
+O perfil em `config/claude/agents/builder.md` é um agente com
+`model: inherit`: ele usa o modelo escolhido na sessão, inclusive os modelos do
+OpenCode Go. O Builder vira o agente principal com `claude --agent builder`.
+Sem esse argumento, ele continua disponível como subagente.
+
+As skills ficam no diretório de configuração do Claude
+(`$CLAUDE_CONFIG_DIR`, por padrão `~/.claude`). Em uma instância separada, como
+a `Claude + OpenCode Go` do T3 (`~/.claude_opencode_go`), instale com
+`CLAUDE_CONFIG_DIR=...` e adicione `--agent builder` em **Launch arguments** da
+instância no T3. O modo de aprovação e o MCP continuam sendo os da sessão
+Claude; `notion-note` exige o MCP do Notion configurado nesse harness.
+
 ## Onde estão os arquivos
 
 | Caminho no dotfiles | O que é |
@@ -323,7 +352,8 @@ permissões. Use `/agent` para escolher o Builder.
 | `config/opencode/opencode.jsonc` | Configuração do OpenCode |
 | `config/opencode/agents/builder.md` | Perfil do OpenCode (frontmatter + corpo gerado) |
 | `config/copilot/agents/builder.agent.md` | Perfil do Copilot CLI (frontmatter + corpo gerado) |
-| `config/agent-workflow/agents/builder.md` | Texto único do Builder, usado pelos dois harnesses |
+| `config/claude/agents/builder.md` | Perfil do Claude Code (frontmatter + corpo gerado) |
+| `config/agent-workflow/agents/builder.md` | Texto único do Builder, usado pelos três harnesses |
 | `config/agent-workflow/scripts/sync-agents.sh` | Copia esse texto para os perfis (`--check` só verifica) |
 | `config/agent-workflow/scripts/check.sh` | Validação completa do fluxo, sem tocar no `HOME` |
 | `config/agent-workflow/skills/*/SKILL.md` | Skills compartilhadas pelos harnesses |
@@ -331,3 +361,4 @@ permissões. Use `/agent` para escolher o Builder.
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializador compartilhado de projeto |
 | `config/opencode/scripts/install.sh` | Instala o perfil e as skills no OpenCode |
 | `config/copilot/scripts/install.sh` | Instala o perfil e as skills no Copilot CLI |
+| `config/claude/scripts/install.sh` | Instala o perfil e as skills no Claude Code |

@@ -1,9 +1,10 @@
 # T3 Code
 
-> Cockpit usado com o OpenCode, não um harness separado. Tema, keybindings,
-> instalação e mecânica de orquestração (threads, worktrees, permissões). O
-> fluxo diário está em [fluxo-de-trabalho.md](fluxo-de-trabalho.md); a
-> orquestração, em [orquestracao.md](orquestracao.md).
+> Cockpit usado com OpenCode, Claude Code, GitHub Copilot e outros harnesses,
+> não um harness separado. Tema, keybindings, instalação e mecânica de
+> orquestração (threads, worktrees, permissões). O fluxo diário está em
+> [fluxo-de-trabalho.md](fluxo-de-trabalho.md); a orquestração, em
+> [orquestracao.md](orquestracao.md).
 
 ## Instalação
 
@@ -35,6 +36,33 @@ t3 theme set matte-black --base-dir "$HOME/.t3"
 Em outra máquina que rode um servidor T3 próprio, rode o mesmo instalador. Se
 ela apenas se conecta a este ambiente via T3 Connect, não precisa: tema,
 keybindings, providers, projetos e threads vêm do servidor.
+
+## Claude Code + OpenCode Go
+
+O T3 usa o binário `claude` em uma instância separada. Para o OpenCode Go, crie
+a instância em **Settings → Providers** com:
+
+| Campo | Valor |
+| --- | --- |
+| Nome | `Claude + OpenCode Go` |
+| `CLAUDE_CONFIG_DIR` | `~/.claude_opencode_go` |
+| `ANTHROPIC_BASE_URL` | `https://opencode.ai/inference/go/anthropic` |
+| `ANTHROPIC_AUTH_TOKEN` | chave do Console (Sensitive; workspace com Go) |
+| `ANTHROPIC_API_KEY` | vazio |
+| Modelos customizados | `deepseek-v4.1-flash`, `glm-5.3`, `glm-5.3-flash`, `kimi-k3`, `minimax-m3`, `qwen3.8-max` |
+| Launch arguments | `--agent builder` |
+
+Instale o Builder e as skills no diretório dessa instância:
+
+```bash
+CLAUDE_CONFIG_DIR="$HOME/.claude_opencode_go" \
+  bash ~/dotfiles/config/claude/scripts/install.sh
+```
+
+Providers são por máquina. Para usar em outro computador, repita a instância
+nele ou conecte-o a este ambiente via T3 Connect (veja
+[remote access](https://github.com/pingdotgg/t3code/blob/main/docs/user/remote-access.md)).
+Com T3 Connect, o provider e a chave continuam só aqui.
 
 ## Orquestração no T3
 

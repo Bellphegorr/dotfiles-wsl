@@ -14,7 +14,7 @@ stale=0
 for source in "$WORKFLOW_DIR"/agents/*.md; do
   name="$(basename "$source" .md)"
   relative="${source#"$CONFIG_DIR"/}"
-  for profile in "$CONFIG_DIR/opencode/agents/$name.md" "$CONFIG_DIR/copilot/agents/$name.agent.md"; do
+  for profile in "$CONFIG_DIR/opencode/agents/$name.md" "$CONFIG_DIR/copilot/agents/$name.agent.md" "$CONFIG_DIR/claude/agents/$name.md"; do
     [[ -f "$profile" ]] || { echo "missing   $profile" >&2; stale=1; continue; }
     head -n1 "$profile" | grep -qx -- '---' || { echo "no frontmatter: $profile" >&2; exit 1; }
 

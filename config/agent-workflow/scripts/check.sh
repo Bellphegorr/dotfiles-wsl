@@ -17,6 +17,7 @@ for script in "$REPO"/scripts/install-lib.sh \
   "$REPO"/config/shell/bashrc "$REPO"/config/shell/profile \
   "$REPO"/config/{shell,tmux,opencode,copilot,claude}/scripts/install.sh \
   "$REPO"/config/tmux/scripts/startup.sh "$REPO"/config/tmux/scripts/mksession.sh \
+  "$REPO"/config/tmux/scripts/autostart.sh \
   "$WORKFLOW"/scripts/*.sh; do
   bash -n "$script" || fail "syntax: $script"
 done
@@ -187,12 +188,14 @@ mkdir -p "$tmux_repo/scripts" "$tmux_repo/config/tmux/scripts"
 cp "$REPO/scripts/install-lib.sh" "$tmux_repo/scripts/"
 cp "$REPO/config/tmux/scripts/install.sh" "$tmux_repo/config/tmux/scripts/"
 cp "$REPO/config/tmux/tmux.conf" "$tmux_repo/config/tmux/"
-cp "$REPO/config/tmux/scripts/startup.sh" "$REPO/config/tmux/scripts/mksession.sh" "$tmux_repo/config/tmux/scripts/"
+cp "$REPO/config/tmux/scripts/startup.sh" "$REPO/config/tmux/scripts/mksession.sh" \
+  "$REPO/config/tmux/scripts/autostart.sh" "$tmux_repo/config/tmux/scripts/"
 tmux_installer="$tmux_repo/config/tmux/scripts/install.sh"
 export HOME="$TMP/tmux-home" XDG_STATE_HOME="$TMP/tmux-state"
 bash "$tmux_installer" > "$TMP/tmux-fresh.log" 2>&1
 cmp -s "$HOME/.config/tmux/tmux.conf" "$tmux_repo/config/tmux/tmux.conf" || fail 'fresh tmux.conf not installed'
 cmp -s "$HOME/.config/tmux/scripts/startup.sh" "$tmux_repo/config/tmux/scripts/startup.sh" || fail 'fresh tmux startup not installed'
+cmp -s "$HOME/.config/tmux/scripts/autostart.sh" "$tmux_repo/config/tmux/scripts/autostart.sh" || fail 'fresh tmux autostart not installed'
 [[ -x "$HOME/.config/tmux/scripts/startup.sh" ]] || fail 'tmux startup permissions'
 [[ -L "$HOME/.local/bin/mksession" ]] || fail 'mksession link missing'
 [[ "$(readlink -f "$HOME/.local/bin/mksession")" == "$(readlink -f "$tmux_repo/config/tmux/scripts/mksession.sh")" ]] \

@@ -25,10 +25,12 @@ source "$REPO/scripts/install-lib.sh"
 
 bash -n "$TMUX_DIR/scripts/startup.sh"
 bash -n "$TMUX_DIR/scripts/mksession.sh"
+bash -n "$TMUX_DIR/scripts/autostart.sh"
 
 install_begin tmux "$FORCE"
 install_file "$TMUX_DIR/tmux.conf" ".config/tmux/tmux.conf" 644
 install_file "$TMUX_DIR/scripts/startup.sh" ".config/tmux/scripts/startup.sh" 755
+install_file "$TMUX_DIR/scripts/autostart.sh" ".config/tmux/scripts/autostart.sh" 644
 install_link "$TMUX_DIR/scripts/mksession.sh" ".local/bin/mksession"
 install_run
 

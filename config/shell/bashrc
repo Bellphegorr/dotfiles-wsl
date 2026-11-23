@@ -137,8 +137,8 @@ eval "$(~/.local/bin/mise activate bash)"
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"
 
-# tmux configurations
-if command -v tmux >/dev/null && [ -z "$TMUX" ] && [ -n "$PS1" ]; then
-    ~/.config/tmux/scripts/startup.sh >/dev/null &
+# tmux autostart hook (installed by config/tmux/scripts/install.sh)
+if [ -f "$HOME/.config/tmux/scripts/autostart.sh" ]; then
+    . "$HOME/.config/tmux/scripts/autostart.sh"
 fi
 

@@ -10,6 +10,8 @@ attacha se o servidor já estiver rodando.
 - Restaura do snapshot `~/.local/share/tmux/resurrect/last` via `tmux-resurrect`.
 - Se não houver snapshot, cria uma sessão `main` vazia.
 - Necessita do plugin `tmux-resurrect` instalado (veja setup abaixo).
+- É disparado pelo `autostart.sh` — um hook que o instalador do tmux deixa no
+  `bashrc` (só um `source`; a lógica do tmux vive toda aqui).
 
 ## mksession.sh
 
@@ -66,7 +68,7 @@ Recarregue com `prefix + r`.
 ## Setup em uma nova máquina
 
 ```bash
-# Instalar tmux.conf, startup.sh e o symlink do mksession
+# Instalar tmux.conf, scripts (startup, autostart) e o symlink do mksession
 bash ~/dotfiles/config/tmux/scripts/install.sh
 
 # Clonar o TPM

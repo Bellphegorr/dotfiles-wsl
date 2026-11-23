@@ -3,6 +3,9 @@
   // OpenCode 2 ignores `model` on primary agents (builder included); new
   // sessions use this default unless another model is picked.
   "model": "opencode-go/deepseek-v4.1-flash#high",
+  // Primary agent used when a session does not select one explicitly
+  // (T3 Code creates OpenCode sessions without an agent, so it lands here).
+  "default_agent": "builder",
   "mcp": {
     "servers": {
       "notion": {

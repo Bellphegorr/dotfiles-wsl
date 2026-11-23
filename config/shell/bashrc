@@ -57,9 +57,10 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    # Matte Black prompt: dim path (brightblack) + chevron in the scheme's blue.
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[90m\]\w\[\033[0m\] \[\033[34m\]❯\[\033[0m\] '
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\w ❯ '
 fi
 unset color_prompt force_color_prompt
 
@@ -116,8 +117,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# WSLg: consoles e o servidor tmux podem iniciar sem as variáveis do Windows.
-# Sem isso, programas gráficos (herdr-app) não abrem janela nos panes.
+# WSLg: consoles and the tmux server may start without Windows variables.
+# Without this, GUI programs (herdr-app) fail to open windows in panes.
 if [ -d /mnt/wslg ]; then
     if [ -S /tmp/.X11-unix/X0 ] && [ -z "${DISPLAY:-}" ]; then
         export DISPLAY=:0
@@ -136,8 +137,8 @@ eval "$(~/.local/bin/mise activate bash)"
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"
 
-# tmux configurations
-if command -v tmux >/dev/null && [ -z "$TMUX" ] && [ -n "$PS1" ]; then
-    ~/.config/tmux/scripts/startup.sh >/dev/null &
+# tmux autostart hook (installed by config/tmux/scripts/install.sh)
+if [ -f "$HOME/.config/tmux/scripts/autostart.sh" ]; then
+    . "$HOME/.config/tmux/scripts/autostart.sh"
 fi
 

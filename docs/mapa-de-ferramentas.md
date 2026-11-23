@@ -35,9 +35,10 @@ O que você quer?
 
 ## Harnesses e cockpit em uso
 
-- **Harnesses:** OpenCode e GitHub Copilot CLI, com o mesmo Builder e as mesmas
-  skills compartilhadas.
-- **Cockpit:** T3 Code, usado com o OpenCode para sessões, diffs e worktrees.
+- **Harnesses:** OpenCode, GitHub Copilot CLI e Claude Code, com o mesmo Builder
+  e as mesmas skills compartilhadas.
+- **Cockpit:** T3 Code, usado com esses harnesses para sessões, diffs e
+  worktrees.
 
 ## Referências
 

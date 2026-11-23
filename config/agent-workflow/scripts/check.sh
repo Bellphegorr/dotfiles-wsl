@@ -13,7 +13,11 @@ trap 'rm -rf "$TMP"' EXIT
 fail() { echo "FAIL: $*" >&2; exit 1; }
 pass() { echo "PASS: $*"; }
 
-for script in "$REPO"/scripts/install-shell.sh "$REPO"/config/{opencode,copilot,claude}/scripts/install.sh "$WORKFLOW"/scripts/*.sh; do
+for script in "$REPO"/scripts/install-lib.sh \
+  "$REPO"/config/shell/bashrc "$REPO"/config/shell/profile \
+  "$REPO"/config/{shell,tmux,opencode,copilot,claude}/scripts/install.sh \
+  "$REPO"/config/tmux/scripts/startup.sh "$REPO"/config/tmux/scripts/mksession.sh \
+  "$WORKFLOW"/scripts/*.sh; do
   bash -n "$script" || fail "syntax: $script"
 done
 pass 'script syntax'
@@ -118,16 +122,15 @@ done
 pass 'initializer preserves existing files, copies templates and is idempotent'
 
 shell_repo="$TMP/shell-repo"
-mkdir -p "$shell_repo/scripts" "$shell_repo/config/tmux/scripts"
-cp "$REPO/scripts/install-shell.sh" "$shell_repo/scripts/"
-cp "$REPO/bashrc" "$shell_repo/bashrc"
-cp "$REPO/config/tmux/scripts/startup.sh" "$shell_repo/config/tmux/scripts/"
-shell_installer="$shell_repo/scripts/install-shell.sh"
+mkdir -p "$shell_repo/scripts" "$shell_repo/config/shell/scripts"
+cp "$REPO/scripts/install-lib.sh" "$shell_repo/scripts/"
+cp "$REPO/config/shell/scripts/install.sh" "$shell_repo/config/shell/scripts/"
+cp "$REPO/config/shell/bashrc" "$REPO/config/shell/profile" "$shell_repo/config/shell/"
+shell_installer="$shell_repo/config/shell/scripts/install.sh"
 export HOME="$TMP/shell-empty-home" XDG_STATE_HOME="$TMP/shell-empty-state"
 bash "$shell_installer" > "$TMP/shell-empty.log" 2>&1
-cmp -s "$HOME/.bashrc" "$shell_repo/bashrc" || fail 'fresh bashrc not installed'
-cmp -s "$HOME/.config/tmux/scripts/startup.sh" "$shell_repo/config/tmux/scripts/startup.sh" \
-  || fail 'fresh tmux startup not installed'
+cmp -s "$HOME/.bashrc" "$shell_repo/config/shell/bashrc" || fail 'fresh bashrc not installed'
+cmp -s "$HOME/.profile" "$shell_repo/config/shell/profile" || fail 'fresh profile not installed'
 [[ ! -e "$XDG_STATE_HOME/shell-dotfiles-backup" ]] || fail 'fresh install created unnecessary backup'
 export HOME="$TMP/shell-home" XDG_STATE_HOME="$TMP/shell-state"
 mkdir -p "$HOME"
@@ -136,30 +139,29 @@ if bash "$shell_installer" > "$TMP/shell-conflict.log" 2>&1; then
   fail 'shell installer accepted an unmanaged local file'
 fi
 grep -qx 'local bashrc' "$HOME/.bashrc" || fail 'shell conflict changed bashrc'
-[[ ! -e "$HOME/.config" && ! -e "$XDG_STATE_HOME" ]] || fail 'shell conflict partially installed files'
+[[ ! -e "$HOME/.profile" && ! -e "$XDG_STATE_HOME" ]] || fail 'shell conflict partially installed files'
 bash "$shell_installer" --force > "$TMP/shell-1.log" 2>&1
 grep -rqx 'local bashrc' "$XDG_STATE_HOME/shell-dotfiles-backup" || fail 'shell backup missing'
 bash "$shell_installer" > "$TMP/shell-2.log" 2>&1
 grep -q '^copied\|^backup' "$TMP/shell-2.log" && fail 'second shell install was not a no-op'
-cmp -s "$HOME/.bashrc" "$shell_repo/bashrc" || fail 'bashrc not installed'
-cmp -s "$HOME/.config/tmux/scripts/startup.sh" "$shell_repo/config/tmux/scripts/startup.sh" \
-  || fail 'tmux startup not installed'
-[[ -x "$HOME/.config/tmux/scripts/startup.sh" && ! -L "$HOME/.bashrc" ]] || fail 'shell install permissions or copy'
+cmp -s "$HOME/.bashrc" "$shell_repo/config/shell/bashrc" || fail 'bashrc not installed'
+cmp -s "$HOME/.profile" "$shell_repo/config/shell/profile" || fail 'profile not installed'
+[[ ! -L "$HOME/.bashrc" && ! -L "$HOME/.profile" ]] || fail 'shell install copies, not links'
 
-echo '# repo update' >> "$shell_repo/bashrc"
+echo '# repo update' >> "$shell_repo/config/shell/bashrc"
 bash "$shell_installer" > "$TMP/shell-update.log" 2>&1
-cmp -s "$HOME/.bashrc" "$shell_repo/bashrc" || fail 'managed bashrc not updated'
-find "$XDG_STATE_HOME/shell-dotfiles-backup" -name .bashrc -exec cmp -s "$REPO/bashrc" {} \; -print \
+cmp -s "$HOME/.bashrc" "$shell_repo/config/shell/bashrc" || fail 'managed bashrc not updated'
+find "$XDG_STATE_HOME/shell-dotfiles-backup" -name .bashrc -exec cmp -s "$REPO/config/shell/bashrc" {} \; -print \
   | grep -q . || fail 'managed update not backed up'
-echo '# another repo update' >> "$shell_repo/bashrc"
-echo '# local edit' >> "$HOME/.config/tmux/scripts/startup.sh"
+echo '# another repo update' >> "$shell_repo/config/shell/bashrc"
+echo '# local profile edit' >> "$HOME/.profile"
 if bash "$shell_installer" > "$TMP/shell-edited.log" 2>&1; then
   fail 'shell installer overwrote a local edit'
 fi
-grep -qx '# local edit' "$HOME/.config/tmux/scripts/startup.sh" || fail 'local edit lost'
+grep -qx '# local profile edit' "$HOME/.profile" || fail 'local edit lost'
 grep -qx '# another repo update' "$HOME/.bashrc" && fail 'conflict allowed a partial update'
 bash "$shell_installer" --force > "$TMP/shell-force.log" 2>&1
-grep -rqx '# local edit' "$XDG_STATE_HOME/shell-dotfiles-backup" || fail 'local edit not backed up'
+grep -rqx '# local profile edit' "$XDG_STATE_HOME/shell-dotfiles-backup" || fail 'local edit not backed up'
 
 rm "$HOME/.bashrc"
 echo 'external file' > "$TMP/external-bashrc"
@@ -179,3 +181,45 @@ if bash "$shell_installer" --force > "$TMP/shell-directory.log" 2>&1; then
 fi
 [[ -d "$HOME/.bashrc" ]] || fail 'shell installer changed a directory'
 pass 'shell installer protects local edits, backs up replacements, updates managed copies and is idempotent'
+
+tmux_repo="$TMP/tmux-repo"
+mkdir -p "$tmux_repo/scripts" "$tmux_repo/config/tmux/scripts"
+cp "$REPO/scripts/install-lib.sh" "$tmux_repo/scripts/"
+cp "$REPO/config/tmux/scripts/install.sh" "$tmux_repo/config/tmux/scripts/"
+cp "$REPO/config/tmux/tmux.conf" "$tmux_repo/config/tmux/"
+cp "$REPO/config/tmux/scripts/startup.sh" "$REPO/config/tmux/scripts/mksession.sh" "$tmux_repo/config/tmux/scripts/"
+tmux_installer="$tmux_repo/config/tmux/scripts/install.sh"
+export HOME="$TMP/tmux-home" XDG_STATE_HOME="$TMP/tmux-state"
+bash "$tmux_installer" > "$TMP/tmux-fresh.log" 2>&1
+cmp -s "$HOME/.config/tmux/tmux.conf" "$tmux_repo/config/tmux/tmux.conf" || fail 'fresh tmux.conf not installed'
+cmp -s "$HOME/.config/tmux/scripts/startup.sh" "$tmux_repo/config/tmux/scripts/startup.sh" || fail 'fresh tmux startup not installed'
+[[ -x "$HOME/.config/tmux/scripts/startup.sh" ]] || fail 'tmux startup permissions'
+[[ -L "$HOME/.local/bin/mksession" ]] || fail 'mksession link missing'
+[[ "$(readlink -f "$HOME/.local/bin/mksession")" == "$(readlink -f "$tmux_repo/config/tmux/scripts/mksession.sh")" ]] \
+  || fail 'mksession link target'
+[[ ! -e "$XDG_STATE_HOME/tmux-dotfiles-backup" ]] || fail 'fresh tmux install created unnecessary backup'
+echo '# local edit' >> "$HOME/.config/tmux/tmux.conf"
+if bash "$tmux_installer" > "$TMP/tmux-conflict.log" 2>&1; then
+  fail 'tmux installer overwrote a local edit'
+fi
+grep -qx '# local edit' "$HOME/.config/tmux/tmux.conf" || fail 'tmux local edit lost'
+bash "$tmux_installer" --force > "$TMP/tmux-force.log" 2>&1
+grep -rqx '# local edit' "$XDG_STATE_HOME/tmux-dotfiles-backup" || fail 'tmux local edit not backed up'
+bash "$tmux_installer" > "$TMP/tmux-2.log" 2>&1
+grep -q '^copied\|^backup' "$TMP/tmux-2.log" && fail 'second tmux install was not a no-op'
+rm "$HOME/.local/bin/mksession"
+echo 'local link target' > "$HOME/.local/bin/mksession"
+if bash "$tmux_installer" > "$TMP/tmux-link.log" 2>&1; then
+  fail 'tmux installer accepted an unmanaged mksession file'
+fi
+grep -qx 'local link target' "$HOME/.local/bin/mksession" || fail 'tmux conflict changed mksession file'
+bash "$tmux_installer" --force > "$TMP/tmux-link-force.log" 2>&1
+grep -rqx 'local link target' "$XDG_STATE_HOME/tmux-dotfiles-backup" || fail 'mksession file not backed up'
+[[ -L "$HOME/.local/bin/mksession" ]] || fail 'mksession not relinked after force'
+rm "$HOME/.local/bin/mksession"
+mkdir "$HOME/.local/bin/mksession"
+if bash "$tmux_installer" --force > "$TMP/tmux-link-directory.log" 2>&1; then
+  fail 'tmux installer replaced a mksession directory'
+fi
+[[ -d "$HOME/.local/bin/mksession" ]] || fail 'tmux installer changed a mksession directory'
+pass 'tmux installer installs files and the mksession link, protects local edits and link conflicts, and is idempotent'

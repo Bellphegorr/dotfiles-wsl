@@ -11,6 +11,19 @@
       "notion": {
         "type": "remote",
         "url": "https://mcp.notion.com/mcp"
+      },
+      // Optional per machine. HOME/~ keep the shared config portable.
+      "browse": {
+        "type": "local",
+        "command": [
+          "{env:HOME}/.local/bin/browse",
+          "mcp"
+        ],
+        "cwd": "~",
+        "pool": true,
+        "environment": {
+          "OPENCODE_BROWSER_RUNTIME": "auto-update"
+        }
       }
     }
   }

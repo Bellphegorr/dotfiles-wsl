@@ -48,8 +48,11 @@ projeto:
 cd ~/meu-projeto && agent-workflow-init .
 ```
 
-O `config/opencode/opencode.jsonc` registra o MCP remoto do Notion —
-autentique uma vez por máquina pelo `/mcps`.
+O `config/opencode/opencode.jsonc` registra o MCP remoto do Notion e o MCP
+local do `browse`. Autentique o Notion uma vez por máquina pelo `/mcps`; o
+`browse` é opcional e exige o binário em `~/.local/bin/browse`. O arquivo é
+sincronizado entre máquinas: use `{env:HOME}` e `~` em vez de paths absolutos
+e deixe segredos fora dele.
 
 ## Documentação
 

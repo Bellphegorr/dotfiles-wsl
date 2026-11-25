@@ -365,3 +365,94 @@ if bash "$tmux_installer" --force > "$TMP/tmux-link-directory.log" 2>&1; then
 fi
 [[ -d "$HOME/.local/bin/mksession" ]] || fail 'tmux installer changed a mksession directory'
 pass 'tmux installer installs files and the mksession link, protects local edits and link conflicts, and is idempotent'
+
+# Bootstrap regressions use a disposable HOME and fake tmux/WSL commands.
+export HOME="$TMP/tmux-bootstrap-home" XDG_STATE_HOME="$TMP/tmux-bootstrap-state"
+export XDG_DATA_HOME="$HOME/.local/share"
+mkdir -p "$HOME/.config/tmux/scripts" "$HOME/bin"
+cat > "$HOME/.config/tmux/scripts/startup.sh" <<'EOF'
+#!/usr/bin/env bash
+readlink "/proc/$$/fd/0" > "$HOME/bootstrap-stdin"
+echo bootstrap-output
+echo bootstrap-warning >&2
+sleep 2
+touch "$HOME/bootstrap-done"
+EOF
+chmod +x "$HOME/.config/tmux/scripts/startup.sh"
+cat > "$HOME/bin/tmux" <<'EOF'
+#!/usr/bin/env bash
+case "$1" in
+  ls) [[ -e "$HOME/restored" ]] && echo 'restored: 1 windows'; exit 0 ;;
+  display)
+    case "$3" in
+      '#{socket_path}') echo "$HOME/fake-tmux.sock" ;;
+      '#{pid}') echo 123 ;;
+    esac ;;
+  new-session) printf '%s\n' "$PATH" > "$HOME/server-path" ;;
+esac
+EOF
+chmod +x "$HOME/bin/tmux"
+export PATH="$HOME/bin:$PATH"
+timeout --kill-after=1s 1s bash --noprofile --norc -c '
+  result="$( { PS1="$ "; TMUX=; . "$1"; printf shell-ready; } 2>&1)"
+  [[ "$result" == shell-ready ]]
+' bash "$REPO/config/tmux/scripts/autostart.sh" || fail 'tmux bootstrap retained shell capture pipes'
+timeout 3s bash -c 'until [[ -e "$HOME/bootstrap-done" ]]; do sleep 0.1; done' \
+  || fail 'detached bootstrap did not finish'
+grep -qx /dev/null "$HOME/bootstrap-stdin" || fail 'bootstrap inherited shell stdin'
+grep -qx bootstrap-warning "$XDG_STATE_HOME/tmux/startup.log" || fail 'bootstrap warning not logged'
+[[ "$(stat -c %a "$XDG_STATE_HOME/tmux/startup.log")" == 600 ]] || fail 'bootstrap log is not private'
+pass 'tmux autostart releases shell capture EOF, disconnects stdin and logs diagnostics'
+
+# Redirect the production lock and WSL discovery to fixtures, never real sessions.
+sed -e 's|^LOCKFILE=.*|LOCKFILE="$HOME/startup.lock"|' \
+  -e 's|/run/WSL|$HOME/run/WSL|g' "$REPO/config/tmux/scripts/startup.sh" \
+  > "$HOME/.config/tmux/scripts/startup.sh"
+startup="$HOME/.config/tmux/scripts/startup.sh"
+mkdir -p "$HOME/run/WSL" "$HOME/.config/tmux/plugins/tmux-resurrect/scripts"
+touch "$HOME/run/WSL/test_interop"
+cat > "$HOME/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh" <<'EOF'
+#!/usr/bin/env bash
+touch "$HOME/restored"
+echo 'no current client' >&2
+echo restore-warning >&2
+EOF
+chmod +x "$HOME/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh"
+cat > "$HOME/bin/wsl.exe" <<'EOF'
+#!/usr/bin/env bash
+echo attempt >> "$HOME/wsl-calls"
+if [[ "${TEST_WSL_HANG:-0}" == 1 ]]; then
+  trap '' TERM
+  sleep 60
+else
+  printf '/mnt/c/test-windows-path\r\n'
+fi
+EOF
+chmod +x "$HOME/bin/wsl.exe"
+flock "$HOME/startup.lock" timeout --kill-after=1s 1s bash "$startup" \
+  || fail 'concurrent bootstrap waited for the lock'
+[[ ! -e "$HOME/wsl-calls" && ! -e "$HOME/server-path" ]] || fail 'contending bootstrap did work'
+pass 'tmux concurrent bootstrap skips an occupied lock'
+
+TEST_WSL_HANG=1 timeout --kill-after=1s 23s bash "$startup" > "$TMP/tmux-timeout.log" 2>&1 \
+  || { cat "$TMP/tmux-timeout.log" >&2; fail 'WSL bootstrap did not finish within its timeout budget'; }
+[[ "$(grep -c '^attempt$' "$HOME/wsl-calls")" == 3 ]] || fail 'WSL timeout retry count'
+[[ "$(grep -c 'falha ao consultar PATH do WSL' "$TMP/tmux-timeout.log")" == 3 ]] \
+  || fail 'WSL timeouts not reported'
+grep -q 'PATH do Windows indisponível' "$TMP/tmux-timeout.log" || fail 'WSL PATH fallback not reported'
+[[ -e "$HOME/server-path" ]] || fail 'WSL timeout prevented tmux bootstrap'
+pass 'tmux bounds hung WSL attempts, escalates termination and reports PATH fallback'
+
+rm "$HOME/wsl-calls" "$HOME/server-path"
+mkdir -p "$HOME/.local/share/tmux/resurrect"
+touch "$HOME/.local/share/tmux/resurrect/last"
+bash "$startup" > "$TMP/tmux-restore.log" 2>&1 \
+  || fail 'normal tmux restore failed'
+[[ -e "$HOME/restored" ]] || fail 'snapshot was not restored'
+grep -q '/mnt/c/test-windows-path:' "$HOME/server-path" || fail 'Windows PATH not preserved'
+grep -qx restore-warning "$TMP/tmux-restore.log" || fail 'restore warning not preserved'
+grep -q '^no current client$' "$TMP/tmux-restore.log" && fail 'expected restore noise not filtered'
+rm "$HOME/wsl-calls" "$HOME/server-path"
+bash "$startup" || fail 'bootstrap with an existing session failed'
+[[ ! -e "$HOME/wsl-calls" && ! -e "$HOME/server-path" ]] || fail 'existing session triggered bootstrap'
+pass 'tmux preserves snapshot restore and Windows PATH, and skips WSL for existing sessions'

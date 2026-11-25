@@ -4,14 +4,21 @@
 
 ## startup.sh
 
-Restaura sessões tmux salvas ao abrir o primeiro terminal (cold start) ou apenas
-attacha se o servidor já estiver rodando.
+Restaura sessões tmux salvas em background ao abrir o primeiro terminal (cold
+start), sem fazer attach. Se já houver uma sessão, não faz nada.
 
 - Restaura do snapshot `~/.local/share/tmux/resurrect/last` via `tmux-resurrect`.
-- Se não houver snapshot, cria uma sessão `main` vazia.
+- Se não houver snapshot, registra um aviso e não mantém uma sessão vazia.
 - Necessita do plugin `tmux-resurrect` instalado (veja setup abaixo).
 - É disparado pelo `autostart.sh` — um hook que o instalador do tmux deixa no
   `bashrc` (só um `source`; a lógica do tmux vive toda aqui).
+- O bootstrap não herda stdin, stdout ou stderr da shell, evitando bloquear a
+  captura de ambiente de editores como o Zed. Avisos e erros ficam em
+  `${XDG_STATE_HOME:-~/.local/state}/tmux/startup.log` (append).
+- Não espera pelo lock se outro bootstrap já estiver restaurando. A consulta
+  do PATH via `wsl.exe` tem até três tentativas de 5 segundos, com 1 segundo
+  para encerrar processos resistentes e 1 segundo entre tentativas. Se falhar,
+  registra o erro e continua com o PATH atual.
 
 ## mksession.sh
 

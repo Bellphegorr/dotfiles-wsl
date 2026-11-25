@@ -14,8 +14,10 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 pass() { echo "PASS: $*"; }
 
 for script in "$REPO"/scripts/install-lib.sh \
+  "$REPO"/install.sh \
   "$REPO"/config/shell/bashrc "$REPO"/config/shell/profile \
-  "$REPO"/config/{shell,tmux,opencode,copilot,claude}/scripts/install.sh \
+  "$REPO"/config/{shell,tmux,opencode,copilot,claude,t3code}/scripts/install.sh \
+  "$REPO"/config/git/configure-gcm.sh \
   "$REPO"/config/tmux/scripts/startup.sh "$REPO"/config/tmux/scripts/mksession.sh \
   "$REPO"/config/tmux/scripts/autostart.sh \
   "$WORKFLOW"/scripts/*.sh; do
@@ -61,6 +63,7 @@ mkdir -p "$XDG_CONFIG_HOME/opencode/agents" "$XDG_CONFIG_HOME/opencode/skills" \
   "$HOME/.copilot/agents" "$HOME/.copilot/skills/custom" \
   "$HOME/.claude/agents" "$HOME/.claude/skills/custom"
 echo 'user builder' > "$XDG_CONFIG_HOME/opencode/agents/builder.md"
+echo 'user copilot agent' > "$HOME/.copilot/agents/builder.agent.md"
 echo 'user skill' > "$HOME/.copilot/skills/custom/keep.txt"
 echo 'user claude builder' > "$HOME/.claude/agents/builder.md"
 echo 'user claude skill' > "$HOME/.claude/skills/custom/keep.txt"
@@ -72,11 +75,39 @@ ln -s "$REPO/config/opencode/agents/planner-0.2.md" "$XDG_CONFIG_HOME/opencode/a
 ln -s "$REPO/config/copilot/agents/planner.agent.md" "$HOME/.copilot/agents/planner.agent.md"
 ln -s "$REPO/config/claude/agents/planner.md" "$HOME/.claude/agents/planner.md"
 
-for round in 1 2; do
-  for harness in opencode copilot claude; do
-    bash "$REPO/config/$harness/scripts/install.sh" > "$TMP/$harness-$round.log" 2>&1 \
-      || { cat "$TMP/$harness-$round.log" >&2; fail "$harness installer, round $round"; }
-  done
+# Verify is read-only and reports missing targets and stale links.
+for harness in opencode copilot claude; do
+  if bash "$REPO/config/$harness/scripts/install.sh" --verify > "$TMP/$harness-verify-fresh.log" 2>&1; then
+    fail "$harness verify accepted a fresh HOME"
+  fi
+  grep -q '^missing' "$TMP/$harness-verify-fresh.log" || fail "$harness verify did not report missing targets"
+  grep -q '^stale' "$TMP/$harness-verify-fresh.log" || fail "$harness verify did not report stale links"
+done
+[[ ! -e "$HOME/.local/bin/agent-workflow-init" && ! -L "$HOME/.local/bin/agent-workflow-init" ]] \
+  || fail 'verify installed a link'
+[[ ! -e "$XDG_STATE_HOME" ]] || fail 'verify wrote state'
+pass 'harness verify is read-only and reports missing targets and stale links'
+
+# Unmanaged destinations abort the run before any write.
+for harness in opencode copilot claude; do
+  if bash "$REPO/config/$harness/scripts/install.sh" > "$TMP/$harness-conflict.log" 2>&1; then
+    fail "$harness installer accepted unmanaged local files"
+  fi
+  grep -q '^conflict:' "$TMP/$harness-conflict.log" || fail "$harness conflict was not reported"
+done
+grep -qx 'user builder' "$XDG_CONFIG_HOME/opencode/agents/builder.md" || fail 'opencode conflict changed a user file'
+grep -qx 'user copilot agent' "$HOME/.copilot/agents/builder.agent.md" || fail 'copilot conflict changed a user file'
+grep -qx 'user claude builder' "$HOME/.claude/agents/builder.md" || fail 'claude conflict changed a user file'
+[[ ! -e "$HOME/.local/bin/agent-workflow-init" && ! -L "$HOME/.local/bin/agent-workflow-init" ]] \
+  || fail 'conflict partially installed a link'
+[[ ! -e "$XDG_STATE_HOME" ]] || fail 'conflict created state'
+pass 'harness installers abort on local edits before writing'
+
+for harness in opencode copilot claude; do
+  bash "$REPO/config/$harness/scripts/install.sh" --force > "$TMP/$harness-1.log" 2>&1 \
+    || { cat "$TMP/$harness-1.log" >&2; fail "$harness installer --force"; }
+  bash "$REPO/config/$harness/scripts/install.sh" > "$TMP/$harness-2.log" 2>&1 \
+    || { cat "$TMP/$harness-2.log" >&2; fail "$harness installer, second run"; }
 done
 grep -q '^linked\|^backup' "$TMP/opencode-2.log" "$TMP/copilot-2.log" "$TMP/claude-2.log" \
   && fail 'second install was not a no-op'
@@ -97,16 +128,53 @@ for agent in "$REPO"/config/claude/agents/*.md; do
   links_to "$HOME/.claude/agents/$(basename "$agent")" "$agent"
 done
 links_to "$HOME/.local/bin/agent-workflow-init" "$WORKFLOW/scripts/init-agent-workflow.sh"
+links_to "$HOME/.local/bin/copilot-workflow-init" "$WORKFLOW/scripts/init-agent-workflow.sh"
+links_to "$XDG_CONFIG_HOME/opencode/opencode.jsonc" "$REPO/config/opencode/opencode.jsonc"
 for stale in "$XDG_CONFIG_HOME/opencode/skills/plan" "$HOME/.copilot/skills/review" \
   "$HOME/.claude/skills/plan" "$XDG_CONFIG_HOME/opencode/agents/planner-0.2.md" \
   "$HOME/.copilot/agents/planner.agent.md" "$HOME/.claude/agents/planner.md"; do
   [[ ! -e "$stale" && ! -L "$stale" ]] || fail "stale link not pruned: $stale"
 done
 grep -rqx 'user builder' "$XDG_STATE_HOME/opencode-dotfiles-backup" || fail 'replaced user file not backed up'
+grep -rqx 'user copilot agent' "$XDG_STATE_HOME/copilot-dotfiles-backup" || fail 'replaced Copilot user file not backed up'
 grep -qx 'user skill' "$HOME/.copilot/skills/custom/keep.txt" || fail 'unrelated user skill touched'
 grep -rqx 'user claude builder' "$XDG_STATE_HOME/claude-dotfiles-backup" || fail 'replaced Claude user file not backed up'
 grep -qx 'user claude skill' "$HOME/.claude/skills/custom/keep.txt" || fail 'unrelated Claude skill touched'
-pass 'all three installers link everything, prune stale links, back up replaced files and are idempotent'
+
+for harness in opencode copilot claude; do
+  bash "$REPO/config/$harness/scripts/install.sh" --verify > "$TMP/$harness-verify-clean.log" 2>&1 \
+    || { cat "$TMP/$harness-verify-clean.log" >&2; fail "$harness verify after install"; }
+  grep -q '0 missing, 0 outdated, 0 different, 0 stale' "$TMP/$harness-verify-clean.log" \
+    || fail "$harness verify summary is not clean"
+done
+
+rm "$XDG_CONFIG_HOME/opencode/opencode.jsonc"
+if bash "$REPO/config/opencode/scripts/install.sh" --verify > "$TMP/opencode-verify-missing.log" 2>&1; then
+  fail 'opencode verify accepted a missing link'
+fi
+grep -q '^missing.*opencode.jsonc' "$TMP/opencode-verify-missing.log" || fail 'opencode verify did not report a missing link'
+bash "$REPO/config/opencode/scripts/install.sh" > "$TMP/opencode-repair.log" 2>&1 \
+  || { cat "$TMP/opencode-repair.log" >&2; fail 'opencode did not repair a missing link without --force'; }
+
+rm "$XDG_CONFIG_HOME/opencode/opencode.jsonc"
+cp "$REPO/config/opencode/opencode.jsonc" "$XDG_CONFIG_HOME/opencode/opencode.jsonc"
+if bash "$REPO/config/opencode/scripts/install.sh" --verify > "$TMP/opencode-verify-copy.log" 2>&1; then
+  fail 'opencode verify accepted an identical copied link source'
+fi
+grep -q '^outdated.*opencode.jsonc' "$TMP/opencode-verify-copy.log" || fail 'opencode verify did not report an identical copy as outdated'
+bash "$REPO/config/opencode/scripts/install.sh" > "$TMP/opencode-relink.log" 2>&1 \
+  || { cat "$TMP/opencode-relink.log" >&2; fail 'opencode did not relink an identical copy without --force'; }
+links_to "$XDG_CONFIG_HOME/opencode/opencode.jsonc" "$REPO/config/opencode/opencode.jsonc"
+
+ln -sfn /tmp "$XDG_CONFIG_HOME/opencode/agents/builder.md"
+if bash "$REPO/config/opencode/scripts/install.sh" --verify > "$TMP/opencode-verify-differs.log" 2>&1; then
+  fail 'opencode verify accepted a retargeted link'
+fi
+grep -q '^differs.*builder.md' "$TMP/opencode-verify-differs.log" || fail 'opencode verify did not report a differing link'
+bash "$REPO/config/opencode/scripts/install.sh" --force > "$TMP/opencode-restore.log" 2>&1 \
+  || { cat "$TMP/opencode-restore.log" >&2; fail 'opencode --force did not restore a retargeted link'; }
+links_to "$XDG_CONFIG_HOME/opencode/agents/builder.md" "$REPO/config/opencode/agents/builder.md"
+pass 'harness installers link everything, prune stale links, back up replaced files, protect local edits and verify'
 
 project="$TMP/project"
 mkdir -p "$project/.agents/memory"
@@ -121,6 +189,77 @@ for name in decisions gotchas handoff; do
   cmp -s "$project/.agents/memory/$name.md" "$WORKFLOW/templates/memory/$name.md" || fail "template: $name"
 done
 pass 'initializer preserves existing files, copies templates and is idempotent'
+
+t3_home="$TMP/t3-home"
+export T3CODE_HOME="$t3_home"
+export HOME="$TMP/t3-user-home"
+export XDG_CONFIG_HOME="$TMP/t3-user-home/.config"
+export XDG_STATE_HOME="$TMP/t3-user-home/.local/state"
+mkdir -p "$HOME"
+saved_path="$PATH"
+export PATH="/usr/bin:/bin"
+
+if bash "$REPO/config/t3code/scripts/install.sh" --verify > "$TMP/t3-verify-fresh.log" 2>&1; then
+  fail 't3code verify accepted a fresh HOME'
+fi
+grep -q '^missing' "$TMP/t3-verify-fresh.log" || fail 't3code verify did not report missing targets'
+[[ ! -e "$T3CODE_HOME" ]] || fail 't3code verify wrote the T3 home'
+bash "$REPO/config/t3code/scripts/install.sh" > "$TMP/t3-1.log" 2>&1 \
+  || { cat "$TMP/t3-1.log" >&2; fail 't3code installer'; }
+links_to "$T3CODE_HOME/userdata/keybindings.json" "$REPO/config/t3code/keybindings.json"
+for theme in "$REPO"/config/t3code/themes/*.json; do
+  cmp -s "$theme" "$T3CODE_HOME/userdata/themes/$(basename "$theme")" \
+    || fail "theme not copied: $(basename "$theme")"
+done
+bash "$REPO/config/t3code/scripts/install.sh" > "$TMP/t3-2.log" 2>&1 \
+  || { cat "$TMP/t3-2.log" >&2; fail 't3code installer, second run'; }
+grep -q '^copied\|^linked\|^backup' "$TMP/t3-2.log" && fail 'second t3code install was not a no-op'
+bash "$REPO/config/t3code/scripts/install.sh" --verify > "$TMP/t3-verify-clean.log" 2>&1 \
+  || { cat "$TMP/t3-verify-clean.log" >&2; fail 't3code verify after install'; }
+grep -q '0 missing, 0 outdated, 0 different, 0 stale' "$TMP/t3-verify-clean.log" \
+  || fail 't3code verify summary is not clean'
+
+echo '# local theme edit' >> "$T3CODE_HOME/userdata/themes/matte-black.json"
+if bash "$REPO/config/t3code/scripts/install.sh" --verify > "$TMP/t3-verify-differs.log" 2>&1; then
+  fail 't3code verify accepted a local theme edit'
+fi
+grep -q '^differs.*matte-black.json' "$TMP/t3-verify-differs.log" || fail 't3code verify did not report a differing theme'
+if bash "$REPO/config/t3code/scripts/install.sh" > "$TMP/t3-conflict.log" 2>&1; then
+  fail 't3code installer overwrote a local theme edit'
+fi
+bash "$REPO/config/t3code/scripts/install.sh" --force > "$TMP/t3-force.log" 2>&1 \
+  || { cat "$TMP/t3-force.log" >&2; fail 't3code --force'; }
+grep -rqx '# local theme edit' "$XDG_STATE_HOME/t3code-dotfiles-backup" || fail 't3 theme edit not backed up'
+bash "$REPO/config/t3code/scripts/install.sh" --verify > "$TMP/t3-verify-restored.log" 2>&1 \
+  || { cat "$TMP/t3-verify-restored.log" >&2; fail 't3code verify after force'; }
+pass 't3code installer links keybindings, copies themes, protects local edits and verifies'
+
+export HOME="$TMP/dispatch-home" XDG_CONFIG_HOME="$TMP/dispatch-home/.config" XDG_STATE_HOME="$TMP/dispatch-home/.local/state"
+export CLAUDE_CONFIG_DIR="$TMP/dispatch-home/.claude"
+export T3CODE_HOME="$TMP/dispatch-t3"
+mkdir -p "$HOME"
+
+bash "$REPO/install.sh" --help > "$TMP/dispatch-help.log" 2>&1 || fail 'install.sh --help failed'
+grep -q 'verify' "$TMP/dispatch-help.log" || fail 'install.sh help lacks verify'
+bash "$REPO/install.sh" > "$TMP/dispatch-noargs.log" 2>&1 || fail 'install.sh without arguments failed'
+grep -q 'Usage:' "$TMP/dispatch-noargs.log" || fail 'install.sh without arguments did not print usage'
+if bash "$REPO/install.sh" nope > /dev/null 2>&1; then fail 'install.sh accepted an unknown command'; fi
+if bash "$REPO/install.sh" verify --force > /dev/null 2>&1; then fail 'install.sh verify accepted --force'; fi
+
+bash "$REPO/install.sh" all > "$TMP/dispatch-all.log" 2>&1 \
+  || { cat "$TMP/dispatch-all.log" >&2; fail 'install.sh all failed'; }
+bash "$REPO/install.sh" verify > "$TMP/dispatch-verify.log" 2>&1 \
+  || { cat "$TMP/dispatch-verify.log" >&2; fail 'install.sh verify failed after all'; }
+grep -q 'skipped git' "$TMP/dispatch-verify.log" || fail 'install.sh verify did not skip git'
+rm "$HOME/.bashrc"
+if bash "$REPO/install.sh" verify > "$TMP/dispatch-drift.log" 2>&1; then fail 'install.sh verify accepted drift'; fi
+grep -q 'drift   shell' "$TMP/dispatch-drift.log" || fail 'install.sh verify summary did not report shell drift'
+bash "$REPO/install.sh" shell > "$TMP/dispatch-shell.log" 2>&1 \
+  || { cat "$TMP/dispatch-shell.log" >&2; fail 'install.sh shell failed'; }
+bash "$REPO/install.sh" verify > "$TMP/dispatch-verify-2.log" 2>&1 \
+  || { cat "$TMP/dispatch-verify-2.log" >&2; fail 'install.sh verify failed after shell repair'; }
+export PATH="$saved_path"
+pass 'top-level installer dispatches, aggregates verify and fails on drift'
 
 shell_repo="$TMP/shell-repo"
 mkdir -p "$shell_repo/scripts" "$shell_repo/config/shell/scripts"

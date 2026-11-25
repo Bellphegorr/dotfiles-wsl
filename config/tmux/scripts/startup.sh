@@ -17,25 +17,45 @@ if [ ! -f "$RESTORE_SCRIPT" ]; then
     exit 1
 fi
 
-# Lock exclusivo: só um terminal restaura por vez. Liberado automaticamente
-# se o processo morrer, então não existe lock órfão.
-exec 9>"$LOCKFILE"
-flock 9
+# Não enfileira bootstraps se outro terminal já estiver restaurando.
+exec 9>"$LOCKFILE" || exit 1
+if flock -n -E 75 9; then
+    :
+else
+    status=$?
+    [ "$status" -eq 75 ] && exit 0
+    echo "tmux: falha ao obter lock (status $status)" >&2
+    exit "$status"
+fi
+
+# Ignora bootstrap órfão deixado por uma execução anterior interrompida.
+if tmux ls 2>/dev/null | grep -qv "^${BOOTSTRAP_SESSION}:"; then
+    exit 0
+fi
 
 # No WSL com systemd, o login do console (getty) não recebe as variáveis
 # de interop do Windows; reconstruímos o ambiente para o servidor tmux.
 if [ -d /run/WSL ] && WSL_INTEROP="$(ls /run/WSL/*_interop 2>/dev/null | head -1)"; then
     export WSL_INTEROP
     WINPATH=""
-    for _ in 1 2 3; do
-        WINPATH="$(wsl.exe -e sh -c 'echo "$PATH"' 2>/dev/null | tr -d '\r')"
-        case "$WINPATH" in *"mnt/c"*) break ;; *) WINPATH="" ; sleep 1 ;; esac
+    for attempt in 1 2 3; do
+        if WINPATH="$(timeout --kill-after=1s 5s wsl.exe -e sh -c 'echo "$PATH"' 9>&-)"; then
+            WINPATH="$(printf '%s' "$WINPATH" | tr -d '\r')"
+            case "$WINPATH" in *"mnt/c"*) break ;; *) WINPATH="" ;; esac
+        else
+            status=$?
+            echo "tmux: falha ao consultar PATH do WSL (tentativa $attempt, status $status)" >&2
+            WINPATH=""
+        fi
+        [ "$attempt" -eq 3 ] || sleep 1
     done
     if [ -n "$WINPATH" ]; then
         case ":$PATH:" in
             *":$WINPATH:"*) ;;
             *) export PATH="$WINPATH:$PATH" ;;
         esac
+    else
+        echo "tmux: PATH do Windows indisponível; continuando com o PATH atual" >&2
     fi
 
     # WSLg: sem isso, panes do tmux (T3, herdr etc.) não têm display e
@@ -51,12 +71,6 @@ if [ -d /run/WSL ] && WSL_INTEROP="$(ls /run/WSL/*_interop 2>/dev/null | head -1
             export PULSE_SERVER=unix:/mnt/wslg/PulseServer
         fi
     fi
-fi
-
-# Só há trabalho se não existir nenhuma sessão (ignora bootstrap órfão
-# deixado por uma execução anterior interrompida).
-if tmux ls 2>/dev/null | grep -qv "^${BOOTSTRAP_SESSION}:"; then
-    exit 0
 fi
 
 # Sobe o servidor com sessão bootstrap detached: o restore.sh precisa de

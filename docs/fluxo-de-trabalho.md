@@ -68,7 +68,7 @@ config/agent-workflow/scripts/check.sh         # valida tudo num HOME descartáv
 ```
 
 O `check.sh` confere sintaxe dos scripts, perfis sincronizados, frontmatter das
-skills, links locais da documentação, os três instaladores (duas vezes) e o
+skills, links locais da documentação, os seis instaladores, o dispatcher e o
 inicializador, sem tocar no seu `HOME`.
 
 ## Instalação
@@ -89,6 +89,11 @@ bash ~/dotfiles/config/claude/scripts/install.sh
 CLAUDE_CONFIG_DIR="$HOME/.claude_opencode_go" \
   bash ~/dotfiles/config/claude/scripts/install.sh
 ```
+
+O dispatcher da raiz (`bash ~/dotfiles/install.sh --help`) chama esses
+instaladores, aceita `all`/`verify` e encaminha `--force`. `--verify` é somente
+leitura e sai com 1 quando algum destino está `missing`, `outdated`, `differs`
+ou `stale`.
 
 Cada instalador cria os links do respectivo perfil e expõe as mesmas skills
 compartilhadas de `config/agent-workflow/`. Os templates e o inicializador
@@ -356,6 +361,8 @@ Claude; `notion-note` exige o MCP do Notion configurado nesse harness.
 | `config/agent-workflow/agents/builder.md` | Texto único do Builder, usado pelos três harnesses |
 | `config/agent-workflow/scripts/sync-agents.sh` | Copia esse texto para os perfis (`--check` só verifica) |
 | `config/agent-workflow/scripts/check.sh` | Validação completa do fluxo, sem tocar no `HOME` |
+| `install.sh` | Dispatcher fino dos instaladores (`all`, `verify`) |
+| `scripts/install-lib.sh` | Motor comum de cópia, link, conflito, backup e verify |
 | `config/agent-workflow/skills/*/SKILL.md` | Skills compartilhadas pelos harnesses |
 | `config/agent-workflow/templates/` | Modelos compartilhados de `AGENTS.md` e memória |
 | `config/agent-workflow/scripts/init-agent-workflow.sh` | Inicializador compartilhado de projeto |

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Installs the shared Builder agent and skills into a Claude Code config
-# directory as links to this dotfiles checkout.
+# directory as links to this dotfiles checkout. Safe to rerun: correct links
+# are kept, local edits abort the run and --force backs them up before
+# replacing.
 #
 # Defaults to ~/.claude. Set CLAUDE_CONFIG_DIR to target another Claude
 # instance, for example the T3 Code Claude + OpenCode Go instance:
@@ -9,81 +11,63 @@
 #     bash config/claude/scripts/install.sh
 set -euo pipefail
 
+usage() {
+  echo "Usage: bash config/claude/scripts/install.sh [--force|--verify]"
+  echo "Links agents and shared skills into \${CLAUDE_CONFIG_DIR:-~/.claude}; --force backs up and replaces local edits."
+  echo "--verify only reports drift and exits 1 when anything is out of sync."
+}
+
+FORCE=0
+VERIFY=0
+while (($#)); do
+  case "$1" in
+    --force) FORCE=1 ;;
+    --verify) VERIFY=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) usage >&2; exit 1 ;;
+  esac
+  shift
+done
+((FORCE && VERIFY)) && { usage >&2; exit 1; }
+
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 CLAUDE_PROFILE_DIR="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
 WORKFLOW_DIR="$(cd "$CLAUDE_PROFILE_DIR/../agent-workflow" && pwd)"
+REPO="$(cd "$CLAUDE_PROFILE_DIR/../.." && pwd)"
 CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 CONFIG_DIR="${CONFIG_DIR/#\~/$HOME}"
 AGENT_DIR="$CONFIG_DIR/agents"
 SKILL_DIR="$CONFIG_DIR/skills"
 BIN_DIR="$HOME/.local/bin"
-BACKUP_DIR="$HOME/.local/state/claude-dotfiles-backup/$(date +%Y%m%d%H%M%S)"
+# shellcheck source=../../../scripts/install-lib.sh
+source "$REPO/scripts/install-lib.sh"
 
-link() {
-  local src="$1" dest="$2"
-
-  if [[ -L "$dest" && "$(readlink -f "$dest")" == "$(readlink -f "$src")" ]]; then
-    echo "ok        $dest"
-    return
-  fi
-
-  mkdir -p "$(dirname "$dest")"
-
-  if [[ -e "$dest" || -L "$dest" ]]; then
-    if [[ -f "$dest" && ! -L "$dest" ]] && cmp -s "$src" "$dest"; then
-      rm "$dest"
-    else
-      local backup="$BACKUP_DIR${dest#"$HOME"}"
-      mkdir -p "$(dirname "$backup")"
-      mv "$dest" "$backup"
-      echo "backup    $backup"
-    fi
-  fi
-
-  ln -s "$src" "$dest"
-  echo "linked    $dest -> $src"
-}
-
-# Remove links owned by this checkout whose source no longer exists, such as
-# after a skill or agent rename. Unrelated user files are left untouched.
-prune_links() {
-  local dir="$1" root="$2" dest target
-
-  [[ -d "$dir" ]] || return 0
-  for dest in "$dir"/*; do
-    [[ -L "$dest" ]] || continue
-    target="$(readlink "$dest" 2>/dev/null || true)"
-    case "$target" in
-      "$root"/*)
-        if [[ ! -e "$target" ]]; then
-          rm "$dest"
-          echo "pruned    $dest -> $target"
-        fi
-        ;;
-    esac
-  done
-}
+install_begin claude "$FORCE" "$VERIFY"
 
 for file in "$CLAUDE_PROFILE_DIR"/agents/*.md; do
-  link "$file" "$AGENT_DIR/$(basename "$file")"
+  install_link_path "$file" "$AGENT_DIR/$(basename "$file")"
 done
-prune_links "$AGENT_DIR" "$CLAUDE_PROFILE_DIR/agents"
+install_prune_links "$AGENT_DIR" "$CLAUDE_PROFILE_DIR/agents"
 
 for dir in "$WORKFLOW_DIR"/skills/*/; do
   dir="${dir%/}"
-  link "$dir" "$SKILL_DIR/$(basename "$dir")"
+  install_link_path "$dir" "$SKILL_DIR/$(basename "$dir")"
 done
-prune_links "$SKILL_DIR" "$WORKFLOW_DIR/skills"
+install_prune_links "$SKILL_DIR" "$WORKFLOW_DIR/skills"
 
-link "$WORKFLOW_DIR/scripts/init-agent-workflow.sh" "$BIN_DIR/agent-workflow-init"
+install_link_path "$WORKFLOW_DIR/scripts/init-agent-workflow.sh" "$BIN_DIR/agent-workflow-init"
 
-case ":$PATH:" in
-  *":$BIN_DIR:"*) ;;
-  *) echo "warning: $BIN_DIR is not in PATH" >&2 ;;
-esac
+install_run
 
-echo
-echo "Done in $CONFIG_DIR."
-echo "Use Builder as the main Claude Code agent with: claude --agent builder"
-echo "In T3 Code, add that flag to the Claude instance's Launch arguments."
-echo "Restart Claude Code (and T3 Code) to load the agent and skills."
+if [[ "$VERIFY" == 0 ]]; then
+  case ":$PATH:" in
+    *":$BIN_DIR:"*) ;;
+    *) echo "warning: $BIN_DIR is not in PATH" >&2 ;;
+  esac
+
+  echo
+  echo "Done in $CONFIG_DIR."
+  echo "Use Builder as the main Claude Code agent with: claude --agent builder"
+  echo "In T3 Code, add that flag to the Claude instance's Launch arguments."
+  echo "Restart Claude Code (and T3 Code) to load the agent and skills."
+fi

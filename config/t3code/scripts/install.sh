@@ -7,48 +7,39 @@
 # Appearance preferences (fonts, sizes, window layout) are per device and are not
 # handled here. See the T3 Code section in the repository README.
 #
-# Safe to rerun: correct links are kept, different files are backed up under
-# ~/.local/state, and publishing the same theme again just refreshes clients.
+# Safe to rerun: correct files are kept, local edits abort the run and --force
+# backs them up before replacing. --verify is read-only and skips the theme
+# activation call.
 set -euo pipefail
+
+usage() {
+  echo "Usage: bash config/t3code/scripts/install.sh [--force|--verify]"
+  echo "Links keybindings and copies themes; --force backs up and replaces local edits."
+  echo "--verify only reports drift and exits 1 when anything is out of sync."
+}
+
+FORCE=0
+VERIFY=0
+while (($#)); do
+  case "$1" in
+    --force) FORCE=1 ;;
+    --verify) VERIFY=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) usage >&2; exit 1 ;;
+  esac
+  shift
+done
+((FORCE && VERIFY)) && { usage >&2; exit 1; }
 
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 T3CODE_DIR="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
+REPO="$(cd "$T3CODE_DIR/../.." && pwd)"
 T3_HOME="${T3CODE_HOME:-$HOME/.t3}"
 STATE_DIR="$T3_HOME/userdata"
 THEMES_DIR="$STATE_DIR/themes"
 DEFAULT_THEME="${T3CODE_DEFAULT_THEME:-matte-black}"
-BACKUP_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/t3code-dotfiles-backup/$(date +%Y%m%d%H%M%S)"
-
-backup_path() {
-  local path="$1"
-  local backup="$BACKUP_DIR${path#"$HOME"}"
-  mkdir -p "$(dirname "$backup")"
-  mv "$path" "$backup"
-  echo "backup    $backup"
-}
-
-link() {
-  local src="$1"
-  local dest="$2"
-
-  if [[ -L "$dest" && "$(readlink -f "$dest")" == "$(readlink -f "$src")" ]]; then
-    echo "ok        $dest"
-    return
-  fi
-
-  mkdir -p "$(dirname "$dest")"
-
-  if [[ -e "$dest" || -L "$dest" ]]; then
-    if [[ -f "$dest" && ! -L "$dest" ]] && cmp -s "$src" "$dest"; then
-      rm "$dest"
-    else
-      backup_path "$dest"
-    fi
-  fi
-
-  ln -s "$src" "$dest"
-  echo "linked    $dest -> $src"
-}
+# shellcheck source=../../../scripts/install-lib.sh
+source "$REPO/scripts/install-lib.sh"
 
 find_t3() {
   if command -v t3 >/dev/null 2>&1; then
@@ -66,36 +57,29 @@ find_t3() {
   return 1
 }
 
-link "$T3CODE_DIR/keybindings.json" "$STATE_DIR/keybindings.json"
+install_begin t3code "$FORCE" "$VERIFY"
 
-mkdir -p "$THEMES_DIR"
+install_link_path "$T3CODE_DIR/keybindings.json" "$STATE_DIR/keybindings.json"
+
 for theme in "$T3CODE_DIR"/themes/*.json; do
   [[ -f "$theme" ]] || continue
-  dest="$THEMES_DIR/$(basename "$theme")"
-
-  if [[ -f "$dest" ]] && cmp -s "$theme" "$dest"; then
-    echo "ok        $dest"
-    continue
-  fi
-
-  if [[ -e "$dest" ]]; then
-    backup_path "$dest"
-  fi
-
-  cp "$theme" "$dest"
-  echo "copied    $dest"
+  install_file_path "$theme" "$THEMES_DIR/$(basename "$theme")" 644
 done
 
-if [[ -f "$THEMES_DIR/$DEFAULT_THEME.json" ]]; then
-  if T3_BIN="$(find_t3)"; then
-    "$T3_BIN" theme set "$DEFAULT_THEME" --base-dir "$T3_HOME"
-  else
-    echo "warning: t3 not found; theme installed but not activated" >&2
-  fi
-else
-  echo "warning: theme $DEFAULT_THEME not found in $THEMES_DIR" >&2
-fi
+install_run
 
-echo
-echo "Done. Restart T3 Code or reconnect clients to load the new keybindings."
-echo "Connected web/desktop clients switch to the environment theme immediately."
+if [[ "$VERIFY" == 0 ]]; then
+  if [[ -f "$THEMES_DIR/$DEFAULT_THEME.json" ]]; then
+    if T3_BIN="$(find_t3)"; then
+      "$T3_BIN" theme set "$DEFAULT_THEME" --base-dir "$T3_HOME"
+    else
+      echo "warning: t3 not found; theme installed but not activated" >&2
+    fi
+  else
+    echo "warning: theme $DEFAULT_THEME not found in $THEMES_DIR" >&2
+  fi
+
+  echo
+  echo "Done. Restart T3 Code or reconnect clients to load the new keybindings."
+  echo "Connected web/desktop clients switch to the environment theme immediately."
+fi

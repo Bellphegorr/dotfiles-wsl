@@ -5,37 +5,34 @@ Configurações pessoais do lado **WSL/Ubuntu** para sincronizar entre máquinas
 
 ## Instalação
 
-Cada unidade é independente. Depois de clonar, rode só o que for usar:
+Cada unidade é independente. O `install.sh` da raiz é só um dispatcher fino:
+os scripts por ferramenta continuam sendo a fonte da verdade.
 
 ```bash
 git clone <url> ~/dotfiles
+bash ~/dotfiles/install.sh --help
+bash ~/dotfiles/install.sh all        # shell, tmux, opencode, claude, copilot, t3code
+bash ~/dotfiles/install.sh verify     # somente leitura; exit 1 se houver drift
+```
 
-# Shell: bashrc e profile -> ~/.bashrc e ~/.profile
-bash ~/dotfiles/config/shell/scripts/install.sh
+Rode só o que for usar: `bash ~/dotfiles/install.sh shell`, `tmux`,
+`opencode`, `claude`, `copilot` ou `t3code`. O `all` não inclui `git`; para o
+credential manager do Windows use `bash ~/dotfiles/install.sh git` (ou
+`config/git/configure-gcm.sh`).
 
-# tmux: tmux.conf, startup, auto-start e mksession -> ~/.config/tmux, ~/.local/bin
-bash ~/dotfiles/config/tmux/scripts/install.sh
+Para a instância do Claude do T3:
 
-# Harnesses de agentes (instale os que usa)
-bash ~/dotfiles/config/opencode/scripts/install.sh
-bash ~/dotfiles/config/copilot/scripts/install.sh
-bash ~/dotfiles/config/claude/scripts/install.sh
-
-# Claude Code com config próprio (por exemplo, a instância do T3)
+```bash
 CLAUDE_CONFIG_DIR="$HOME/.claude_opencode_go" \
-  bash ~/dotfiles/config/claude/scripts/install.sh
-
-# T3 Code (tema e keybindings; T3CODE_DEFAULT_THEME=matte-black-minimal usa o minimal)
-bash ~/dotfiles/config/t3code/scripts/install.sh
-
-# Git no WSL (credential manager do Windows)
-bash ~/dotfiles/config/git/configure-gcm.sh
+  bash ~/dotfiles/install.sh claude
 ```
 
 Todos os instaladores podem ser rodados de novo após atualizar o repo:
 atualizam apenas o que não foi editado localmente, guardam backup em
 `~/.local/state/<tool>-dotfiles-backup/` e abortam se encontrarem uma edição
-local (`--force` autoriza a substituição).
+local (`--force` autoriza a substituição). `--verify` só relata o estado
+(`ok`, `missing`, `outdated`, `differs`, `stale`) e não escreve nada; o
+dispatcher aceita `--force` e o encaminha aos instaladores.
 
 ## Agentes
 
@@ -69,9 +66,10 @@ e deixe segredos fora dele.
 
 | Caminho | Conteúdo |
 | --- | --- |
+| `install.sh` | Dispatcher fino dos instaladores (`all`, `verify`, `--force`) |
 | `config/shell/` | `bashrc`, `profile` (prompt Matte Black) e instalador |
 | `config/tmux/` | `tmux.conf`, instalador e scripts (`startup`, `autostart`, `mksession`) |
-| `scripts/install-lib.sh` | Motor comum dos instaladores (conflito, backup, estado) |
+| `scripts/install-lib.sh` | Motor comum dos instaladores (cópia, link, conflito, backup e verify) |
 | `config/agent-workflow/` | Builder, skills, templates e scripts |
 | `config/opencode/`, `config/copilot/`, `config/claude/`, `config/t3code/` | Harnesses de agentes |
 | `config/git/`, `config/mise/` | Git (GCM) e gerenciador de versões |
